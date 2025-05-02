@@ -1,0 +1,28 @@
+{
+    "name": "nestflix-and-chat",
+    "type": "module",
+    "version": "0.0.1",
+    "description": "Nestflix and chat est une application permettant de discuter en temps réel. Elle utilise WebSocket pour la communication en temps réel.",
+    "author": {
+        "name": "Nestflix and chat",
+        "url": "https://github.com/Vitaalx/nestflix-and-chat"
+    },
+    "contributors": [
+        {
+            "name": "Maubry94",
+            "url": "https://github.com/Maubry94"
+        },
+        {
+            "name": "Vitaalx",
+            "url": "https://github.com/Vitaalx"
+        }
+    ],
+    "workspaces": [
+        "api/*"
+    ],
+    "private": true,
+    "license": "UNLICENSED",
+    "scripts": {},
+    "dependencies": {},
+    "devDependencies": {}
+}
