@@ -1,0 +1,52 @@
+services:
+  node-installer:
+    image: node:22.14.0
+    volumes:
+      - ./:/home/node/project
+    environment:
+      npm_config_cache: /home/node/cache
+    working_dir: /home/node/project
+    user: 1000:1000
+    command: npm i
+
+  vue:
+    image: node:22.14.0
+    container_name: frontend-nest-chat-websocket
+    volumes:
+      - ./:/home/node/project
+    ports:
+      - 5173:5173
+    environment:
+      npm_config_cache: /home/node/cache
+    working_dir: /home/node/project
+    user: 1000:1000
+    command: npm run dev:vue
+    depends_on:
+      node-installer:
+        condition: service_completed_successfully
+
+  nestjs:
+    image: node:22.14.0
+    container_name: backend-nest-chat-websocket
+    volumes:
+      - ./:/home/node/project
+    ports:
+      - 1506:1506
+    environment:
+      npm_config_cache: /home/node/cache
+    working_dir: /home/node/project
+    user: 1000:1000
+    command: npm run dev:nestjs
+    depends_on:
+      node-installer:
+        condition: service_completed_successfully
+
+  postgres:
+    image: postgres:16.6
+    env_file: ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    attach: false
+
+volumes:
+  postgres_data:

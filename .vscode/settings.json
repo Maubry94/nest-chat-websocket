@@ -25,6 +25,7 @@
     "json.format.enable": false,
     "eslint.workingDirectories": [
         "./backend",
+		"./frontend"
     ],
     "typescript.tsdk": "node_modules/typescript/lib"
 }
