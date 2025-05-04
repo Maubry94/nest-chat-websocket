@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
-import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import TheButton from "@/components/ui/button/TheButton.vue";
-
-const { isConnected } = useUserInformation();
-
-if (isConnected.value) {
-	console.log("User is already connected");
-}
 
 async function googleSign() {
 	const provider = new GoogleAuthProvider();
@@ -41,7 +34,6 @@ async function googleSign() {
 
 				<TheButton
 					@click="googleSign"
-					variant="outline"
 					class="w-full"
 				>
 					<svg
