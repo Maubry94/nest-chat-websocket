@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import auth from "@/domains/auth/router";
 import main, { notFound } from "@/domains/main/router";
 
 const router = createRouter({
@@ -7,7 +8,10 @@ const router = createRouter({
 		{
 			path: "/",
 			component: () => import("@/layouts/BaseLayout.vue"),
-			children: [...main()],
+			children: [
+				...main(),
+				...auth(),
+			],
 		},
 		notFound(),
 	],
