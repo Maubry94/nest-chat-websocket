@@ -1,17 +1,19 @@
 import { createRouter, createWebHistory } from "vue-router";
 import auth from "@/domains/auth/router";
-import main, { notFound } from "@/domains/main/router";
+import chat, { notFound } from "@/domains/chat/router";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
-			path: "/",
+			path: "/login",
 			component: () => import("@/layouts/BaseLayout.vue"),
-			children: [
-				...main(),
-				...auth(),
-			],
+			children: [...auth()],
+		},
+		{
+			path: "/",
+			component: () => import("@/layouts/ChatLayout.vue"),
+			children: [...chat()],
 		},
 		notFound(),
 	],

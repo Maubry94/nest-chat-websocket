@@ -1,20 +1,30 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
-import pluginVue from 'eslint-plugin-vue'
+import { duplojsEslintBase } from "@duplojs/eslint";
+import tseslint from "typescript-eslint";
+import vueParser from "vue-eslint-parser";
+import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
+import path from "path";
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
 
-export default defineConfigWithVueTs(
-  {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
-  },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+const eslintConfigVue = [
+	...pluginVue.configs["flat/strongly-recommended"],
+	{
+		...duplojsEslintBase,
+		languageOptions: {
+			parser: vueParser,
+			parserOptions: {
+				parser: tseslint.parser,
+				project: path.resolve(__dirname, "./tsconfig.app.json"),
+				tsconfigRootDir: path.resolve(__dirname),
+				globals: globals.browser,
+				sourceType: "module",
+				extraFileExtensions: [".vue"],
+			},
+		},
+		files: ["**/*.ts", "**/*.vue"],
+		ignores: ["**/*.test.ts", "eslint.config.ts"],
+	},
+];
 
-  pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
-)
+export default eslintConfigVue;

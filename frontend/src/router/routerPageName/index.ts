@@ -1,7 +1,7 @@
 import { routerPageNameAuth } from "@/domains/auth/router";
-import { routerPageNameMain } from "@/domains/main/router";
+import { routerPageNameChat } from "@/domains/chat/router";
 
 export const routerPageName = Object.freeze({
 	...routerPageNameAuth,
-	...routerPageNameMain,
+	...routerPageNameChat,
 });

@@ -1,15 +1,15 @@
 import type { RouteRecordRaw } from "vue-router";
 
-export const routerPageNameMain = Object.freeze({
+export const routerPageNameChat = Object.freeze({
 	HOME_PAGE: "home",
 	NOT_FOUND_PAGE: "not-found",
 });
 
 export default (): RouteRecordRaw[] => [
 	{
-		name: routerPageNameMain.HOME_PAGE,
+		name: routerPageNameChat.HOME_PAGE,
 		path: "/",
-		component: () => import("./pages/HomePage.vue"),
+		component: () => import("./pages/ChatPage.vue"),
 	},
 ];
 
@@ -19,7 +19,7 @@ export function notFound(): RouteRecordRaw {
 		component: () => import("@/layouts/BaseLayout.vue"),
 		children: [
 			{
-				name: routerPageNameMain.NOT_FOUND_PAGE,
+				name: routerPageNameChat.NOT_FOUND_PAGE,
 				path: "/:notFoundPath(.*)*",
 				component: () => import("./pages/NotFoundPage.vue"),
 			},
