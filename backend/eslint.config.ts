@@ -13,6 +13,7 @@ const eslintConfig = [
 			...duplojsEslintBase.rules,
 			"new-cap": "off",
 			"@typescript-eslint/no-empty-object-type": "off",
+			"@typescript-eslint/consistent-type-imports": "off",
 		},
 	},
 ];

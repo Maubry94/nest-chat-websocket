@@ -2,14 +2,9 @@ import { config as importEnvFile } from "dotenv";
 import { expand as expandEnv } from "dotenv-expand";
 import { z } from "zod";
 
-const NEST_DEFAULT_PORT = 1506;
+const DEFAULT_PORT = 1506;
 const DEFAULT_HOST = "0.0.0.0";
 const DEFAULT_ENVIRONMENT = "DEV";
-
-declare global {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-	const ENV: (typeof import("./envs"))["default"];
-}
 
 for (const pathEnv of [".env.local", ".env"]) {
 	expandEnv(
@@ -17,12 +12,14 @@ for (const pathEnv of [".env.local", ".env"]) {
 	);
 }
 
-//@ts-expect-error var 'global' cause type error.
 export default global.ENV = z
 	.object({
-		NEST_PORT: z.coerce.number().default(NEST_DEFAULT_PORT),
-		NEST_HOST: z.string().default(DEFAULT_HOST),
+		PORT: z.coerce.number().default(DEFAULT_PORT),
+		HOST: z.string().default(DEFAULT_HOST),
 		ENVIRONMENT: z.enum(["DEV", "PROD", "TEST"]).default(DEFAULT_ENVIRONMENT),
+		FIREBASE_CREDENTIAL_PATH: z.string(),
+		JWT_KEY: z.string(),
+		JWT_TIME: z.coerce.number(),
 	})
 	.readonly()
 	.parse(process.env);

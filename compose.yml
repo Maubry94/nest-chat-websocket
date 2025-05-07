@@ -11,11 +11,10 @@ services:
 
   vue:
     image: node:22.14.0
-    container_name: frontend-nest-chat-websocket
     volumes:
       - ./:/home/node/project
     ports:
-      - 5173:5173
+      - 3000:3000
     environment:
       npm_config_cache: /home/node/cache
     working_dir: /home/node/project
@@ -27,10 +26,10 @@ services:
 
   nestjs:
     image: node:22.14.0
-    container_name: backend-nest-chat-websocket
     volumes:
       - ./:/home/node/project
     ports:
+      - 5555:5555
       - 1506:1506
     environment:
       npm_config_cache: /home/node/cache
@@ -40,8 +39,10 @@ services:
     depends_on:
       node-installer:
         condition: service_completed_successfully
+      nestjs-postgres:
+        condition: service_started
 
-  postgres:
+  nestjs-postgres:
     image: postgres:16.6
     env_file: ./backend/.env
     volumes:
