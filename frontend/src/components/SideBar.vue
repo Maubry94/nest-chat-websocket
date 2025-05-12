@@ -1,27 +1,46 @@
 <script setup lang="ts">
+import type { Conversation } from "@/schemas/conversationSchema";
 import { computed, ref } from "vue";
 import { TheButton } from "@/components/ui/button";
-import TheInput from "./ui/input/TheInput.vue";
+import { TheInput } from "@/components/ui/input";
 
-// Mock data for conversations
-const conversations = ref([
+// Mock des conversations
+const conversations = ref<Conversation[]>([
 	{
-		id: 1,
+		id: "b1e7c8a2-1f2d-4e3b-9a7c-1234567890ab",
 		name: "Groupe Dev",
-		lastMessage: "À ce soir !",
+		messages: [],
+		lastMessage: {
+			sender: "them",
+			user: "Alice",
+			content: "Coucou !",
+			createdAt: new Date().toISOString(),
+		},
 	},
 	{
-		id: 2,
+		id: "a2c9d7b3-2e4f-5c6d-8b9e-abcdef123456",
 		name: "Alice",
-		lastMessage: "Merci pour l'aide !",
+		messages: [],
+		lastMessage: {
+			sender: "them",
+			user: "Alice",
+			content: "Salut !",
+			createdAt: new Date().toISOString(),
+		},
 	},
 	{
-		id: 3,
+		id: "c3d8e9f4-3a5b-6d7e-9c0f-fedcba654321",
 		name: "Bob",
-		lastMessage: "On se capte demain ?",
+		messages: [],
+		lastMessage: {
+			sender: "them",
+			user: "Bob",
+			content: "Yo !",
+			createdAt: new Date().toISOString(),
+		},
 	},
 ]);
-// End of mock data
+// End Mock
 
 const search = ref("");
 const filteredConversations = computed(() => conversations.value.filter((conv) => conv.name.toLowerCase().includes(search.value.toLowerCase())));
@@ -49,14 +68,19 @@ const filteredConversations = computed(() => conversations.value.filter((conv) =
 					v-for="conv in filteredConversations"
 					:key="conv.id"
 				>
-					<a
-						href="#"
-						class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+					<RouterLink
+						:to="{ name: 'chat', params: { id: conv.id } }"
+						class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 					>
-						<div class="font-medium">{{ conv.name }}</div>
+						<div class="font-medium">
+							{{ conv.name }}
+						</div>
 
-						<div class="text-xs text-muted-foreground truncate">{{ conv.lastMessage }}</div>
-					</a>
+						<div class="text-xs text-muted-foreground truncate">
+							<span class="font-semibold">{{ conv.lastMessage.user }} :</span>
+							{{ conv.lastMessage.content }}
+						</div>
+					</RouterLink>
 				</li>
 
 				<li
