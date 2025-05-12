@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ScrollArea } from "@/components/ui/scroll-area";
-import MessageBox from "../components/MessageBox.vue";
-import TheMessage from "../components/TheMessage.vue";
 import type { Message } from "@/schemas/messageSchema";
+import ScrollArea from "@/components/ui/scroll-area/ScrollArea.vue";
+import TheMessage from "../components/TheMessage.vue";
+import MessageBox from "../components/MessageBox.vue";
 
 // Mock data for messages
 const MESS_CONF = {
@@ -21,7 +21,12 @@ const messages: Message[] = Array.from({ length: 50 }).map((_unused, index) => {
 
 	return {
 		sender: isYou ? "you" : "them",
-		user: isYou ? "Vous" : `Utilisateur ${Math.floor(messageNumber / MESS_CONF.MESSAGE_USER_DIVISOR) + MESS_CONF.USER_INDEX_OFFSET}`,
+		user: isYou
+			? "Vous"
+			: `Utilisateur ${
+				Math.floor(messageNumber / MESS_CONF.MESSAGE_USER_DIVISOR)
+                + MESS_CONF.USER_INDEX_OFFSET
+			}`,
 		content: `Message ${messageNumber}`,
 		createdAt: new Date(
 			Date.now() - ((MESS_CONF.TOTAL_MESSAGES - messageNumber) * MESS_CONF.MILLIS_IN_MINUTE),
@@ -29,29 +34,41 @@ const messages: Message[] = Array.from({ length: 50 }).map((_unused, index) => {
 	};
 });
 // End of mock data
+
+const chatName = "Chat name";
 </script>
 
 <template>
-  <section class="h-full flex flex-col gap-4">
-    <ScrollArea class="h-[calc(100vh-4rem-2*2rem)]">
-      <div class="p-4">
-        <h4 class="mb-4 text-sm font-medium leading-none">
-          Conversation
-        </h4>
+	<section class="h-full flex flex-col bg-background">
+		<header
+			class="sticky top-0 z-10 px-6 py-4 flex gap-4 items-center bg-card border-b border-border"
+		>
+			<div class="flex flex-col">
+				<span class="text-lg font-semibold">
+					{{ chatName }}
+				</span>
 
-        <div class="space-y-2">
-          <TheMessage
-            v-for="(message, index) in messages"
-            :key="index"
-            :sender="message.sender"
-            :user="message.user"
-            :content="message.content"
-            :created-at="message.createdAt"
-          />
-        </div>
-      </div>
-    </ScrollArea>
+				<span class="text-xs text-muted-foreground">
+					En ligne
+				</span>
+			</div>
+		</header>
 
-    <MessageBox />
-  </section>
+		<ScrollArea class="flex-1 px-4 overflow-y-auto">
+			<div class="space-y-2">
+				<TheMessage
+					v-for="(message, index) in messages"
+					:key="index"
+					:sender="message.sender"
+					:user="message.user"
+					:content="message.content"
+					:created-at="message.createdAt"
+				/>
+			</div>
+		</ScrollArea>
+
+		<div class="shrink-0 pb-4">
+			<MessageBox />
+		</div>
+	</section>
 </template>

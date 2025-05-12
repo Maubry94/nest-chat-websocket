@@ -20,28 +20,28 @@ const formattedDate = computed(() => {
 });
 
 const messageClasses = computed(() => cn(
-	"rounded-lg px-4 py-3 max-w-[80%] break-words shadow-sm",
+	"max-w-[80%] px-4 py-3 break-words rounded-lg shadow-sm",
 	props.sender === "you"
 		? "bg-primary text-primary-foreground ml-auto"
 		: "bg-accent text-accent-foreground",
 ));
 
 const containerClasses = computed(() => cn(
-	"flex flex-col mb-4",
+	"mb-4 flex flex-col",
 	props.sender === "you" ? "items-end" : "items-start",
 ));
 </script>
 
 <template>
-  <div :class="containerClasses">
-    <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-      <span class="font-medium">{{ user }}</span>
+	<div :class="containerClasses">
+		<div class="mb-1 flex gap-2 items-center text-sm text-muted-foreground">
+			<span class="font-medium">{{ user }}</span>
 
-      <span class="text-xs">{{ formattedDate }}</span>
-    </div>
+			<span class="text-xs">{{ formattedDate }}</span>
+		</div>
 
-    <div :class="messageClasses">
-      {{ content }}
-    </div>
-  </div>
+		<div :class="messageClasses">
+			{{ content }}
+		</div>
+	</div>
 </template>
