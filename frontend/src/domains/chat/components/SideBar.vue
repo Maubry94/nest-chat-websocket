@@ -7,6 +7,7 @@ import type { Conversation } from "@/schemas/conversationSchema";
 import { computed, ref } from "vue";
 import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
+import DarkModeToggle from "@/components/DarkModeToggle.vue";
 
 const router = useRouter();
 const { LOGIN_PAGE, PROFILE_PAGE } = routerPageName;
@@ -75,6 +76,8 @@ function logout() {
 			<h1 class="text-2xl font-bold text-sidebar-primary">
 				Nestflix & Chat
 			</h1>
+
+			<DarkModeToggle />
 		</div>
 
 		<div>
