@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { routerPageName } from "@/router/routerPageName";
+import { useSonner } from "@/composables/useSonner";
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import type { Conversation } from "@/schemas/conversationSchema";
 import { computed, ref } from "vue";
 import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
+
+const router = useRouter();
+const { LOGIN_PAGE } = routerPageName;
+const { sonnerError, sonnerMessage } = useSonner();
+const { deleteAccessToken } = useUserInformation();
 
 // Mock des conversations
 const conversations = ref<Conversation[]>([
@@ -44,6 +53,20 @@ const conversations = ref<Conversation[]>([
 
 const search = ref("");
 const filteredConversations = computed(() => conversations.value.filter((conv) => conv.name.toLowerCase().includes(search.value.toLowerCase())));
+
+function logout() {
+	try {
+		deleteAccessToken();
+		sonnerMessage("Déconnexion réussie", {
+			description: "Vous êtes maintenant déconnecté.",
+		});
+		void router.push({ name: LOGIN_PAGE });
+	} catch {
+		sonnerError("Erreur de déconnexion", {
+			description: "Une erreur est survenue lors de la déconnexion.",
+		});
+	}
+}
 </script>
 
 <template>
@@ -92,12 +115,19 @@ const filteredConversations = computed(() => conversations.value.filter((conv) =
 			</ul>
 		</nav>
 
-		<div class="pt-2">
+		<div class="pt-2 space-y-2">
 			<TheButton
 				class="w-full"
 				variant="outline"
 			>
 				Mon profil
+			</TheButton>
+
+			<TheButton
+				class="w-full"
+				@click="logout"
+			>
+				Se déconnecter
 			</TheButton>
 		</div>
 	</aside>

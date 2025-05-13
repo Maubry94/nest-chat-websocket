@@ -1,5 +1,6 @@
 import { useLocalStorageItem } from "@/composables/useLocalStorageItem";
-import axios, { HttpStatusCode } from "axios";
+import backendClient from "@/lib/axios";
+import { HttpStatusCode } from "axios";
 import { computed, ref, watch } from "vue";
 
 const accessTokenLocalStorageKey = "accessToken";
@@ -14,24 +15,30 @@ export function useUserInformation() {
 
 	function deleteAccessToken() {
 		accessTokenItem.value = null;
+		user.value = null;
 	}
 
 	const isConnected = computed(() => !!user.value);
-
 	const accessToken = computed(() => accessTokenItem.value);
 
 	async function fetchInformation() {
-		return axios
-			.get("/user")
-			.then(
-				(response) => {
-					if (response.status === HttpStatusCode.Ok) {
-						user.value = response.data;
-					} else {
-						accessTokenItem.value = null;
-					}
+		try {
+			const response = await backendClient.get("/user", {
+				headers: {
+					Authorization: accessTokenItem.value,
 				},
-			);
+			});
+
+			if (response.status === HttpStatusCode.Ok) {
+				user.value = response.data;
+			} else {
+				accessTokenItem.value = null;
+				user.value = null;
+			}
+		} catch {
+			accessTokenItem.value = null;
+			user.value = null;
+		}
 	}
 
 	return {

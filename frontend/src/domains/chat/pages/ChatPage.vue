@@ -3,6 +3,7 @@ import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
 import type { Conversation } from "@/schemas/conversationSchema";
 import { computed } from "vue";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import TheMessage from "../components/TheMessage.vue";
 import MessageBox from "../components/MessageBox.vue";
 

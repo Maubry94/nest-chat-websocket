@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import SideBar from "@/components/SideBar.vue";
+import SideBar from "@/domains/chat/components/SideBar.vue";
 </script>
 
 <template>

@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { routerPageName } from "@/router/routerPageName";
+import { useSonner } from "@/composables/useSonner";
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
-import TheButton from "@/components/ui/button/TheButton.vue";
-import { useSonner } from "@/composables/useSonner";
 import backendClient from "@/lib/axios";
 import { HttpStatusCode } from "axios";
-import { useUserInformation } from "@/domains/user/composables/useUserInformation";
+import TheButton from "@/components/ui/button/TheButton.vue";
 
+const router = useRouter();
+const { HOME_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { setAccessToken } = useUserInformation();
 
@@ -33,7 +37,7 @@ async function googleSign() {
 							description: "Vous êtes maintenant connecté.",
 						},
 					);
-				// Redirect to the home page
+					void router.push({ name: HOME_PAGE });
 				}
 			});
 	} catch {
