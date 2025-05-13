@@ -9,7 +9,7 @@ import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
 
 const router = useRouter();
-const { LOGIN_PAGE } = routerPageName;
+const { LOGIN_PAGE, PROFILE_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { deleteAccessToken } = useUserInformation();
 
@@ -117,10 +117,15 @@ function logout() {
 
 		<div class="pt-2 space-y-2">
 			<TheButton
+				as-child
 				class="w-full"
 				variant="outline"
 			>
-				Mon profil
+				<RouterLink
+					:to="{ name: PROFILE_PAGE }"
+				>
+					Mon profil
+				</RouterLink>
 			</TheButton>
 
 			<TheButton

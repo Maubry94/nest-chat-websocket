@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import auth from "@/domains/auth/router";
 import chat, { notFound } from "@/domains/chat/router";
+import user from "@/domains/user/router";
 import { authGuard } from "./gards/authGuard";
 
 const router = createRouter({
@@ -14,7 +15,7 @@ const router = createRouter({
 		{
 			path: "/",
 			component: () => import("@/layouts/ChatLayout.vue"),
-			children: [...chat()],
+			children: [...chat(), ...user()],
 		},
 		notFound(),
 	],
