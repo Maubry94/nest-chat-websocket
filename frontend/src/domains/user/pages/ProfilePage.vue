@@ -22,7 +22,7 @@ const { user } = useUserInformation();
 					<TheInput
 						id="username"
 						:model-value="user?.username ?? ''"
-						readonly
+						disabled
 						autocomplete="username"
 					/>
 				</div>
@@ -35,7 +35,7 @@ const { user } = useUserInformation();
 					<TheInput
 						id="email"
 						:model-value="user?.email ?? ''"
-						readonly
+						disabled
 						autocomplete="email"
 					/>
 				</div>
