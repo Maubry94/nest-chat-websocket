@@ -4,7 +4,7 @@ import TheSonner from "./components/ui/sonner/TheSonner.vue";
 </script>
 
 <template>
-	<TheSonner />
+	<TheSonner close-button />
 
 	<RouterView />
 </template>
