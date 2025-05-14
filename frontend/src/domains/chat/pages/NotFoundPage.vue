@@ -18,7 +18,7 @@ async function goToHome() {
 					404
 				</h1>
 
-				<h2 class="text-xl font-medium sm:text-2xl">
+				<h2 class="text-2xl font-medium">
 					Page non trouvée
 				</h2>
 

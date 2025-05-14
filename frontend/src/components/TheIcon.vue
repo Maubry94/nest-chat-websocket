@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {
+	Menu,
 	User,
 	Send,
 } from "lucide-vue-next";
 
 const iconMapper = {
+	menu: Menu,
 	user: User,
 	send: Send,
 };

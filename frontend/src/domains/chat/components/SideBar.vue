@@ -5,9 +5,8 @@ import { useSonner } from "@/composables/useSonner";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import type { Conversation } from "@/schemas/conversationSchema";
 import { computed, ref } from "vue";
-import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
-import DarkModeToggle from "@/components/DarkModeToggle.vue";
+import { TheButton } from "@/components/ui/button";
 
 const router = useRouter();
 const { LOGIN_PAGE, PROFILE_PAGE } = routerPageName;
@@ -71,14 +70,10 @@ function logout() {
 </script>
 
 <template>
-	<aside class="w-80 h-full p-4 flex flex-col gap-6 bg-sidebar border-r border-sidebar-border">
-		<div class="mb-2 flex items-center justify-between">
-			<h1 class="text-2xl font-bold text-sidebar-primary">
-				Nestflix & Chat
-			</h1>
-
-			<DarkModeToggle />
-		</div>
+	<aside class="w-68 md:w-80 h-full p-4 hidden sm:flex flex-col gap-6 bg-sidebar border-r border-sidebar-border">
+		<h1 class="mb-2 text-2xl font-bold text-sidebar-primary">
+			Nestflix & Chat
+		</h1>
 
 		<div>
 			<TheInput

@@ -53,13 +53,13 @@ async function googleSign() {
 		<div class="w-full max-w-sm">
 			<div class="flex flex-col gap-6">
 				<div class="flex flex-col gap-2 items-center">
-					<h1 class="text-xl font-bold">
+					<h1 class="text-2xl text-primary font-bold">
 						Nestflix & Chat
 					</h1>
 
-					<span class="text-center text-sm">
+					<p class="text-center">
 						Connectez-vous avec votre compte Google
-					</span>
+					</p>
 				</div>
 
 				<TheButton

@@ -5,6 +5,7 @@ import type { Conversation } from "@/schemas/conversationSchema";
 import { computed, ref } from "vue";
 import type { Message } from "@/schemas/messageSchema";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
 import MessageBox from "../components/MessageBox.vue";
 
@@ -112,19 +113,7 @@ function sendMessage(content: string) {
 
 <template>
 	<section class="h-full flex flex-col bg-background">
-		<header
-			class="sticky top-0 z-10 px-6 py-4 flex gap-4 items-center bg-card border-b border-border"
-		>
-			<div class="flex flex-col">
-				<span class="text-lg font-semibold">
-					{{ chatName }}
-				</span>
-
-				<span class="text-xs text-muted-foreground">
-					En ligne
-				</span>
-			</div>
-		</header>
+		<ChatHeader :chat-name="chatName" />
 
 		<ScrollArea class="flex-1 px-4 overflow-y-auto">
 			<div class="space-y-2">
