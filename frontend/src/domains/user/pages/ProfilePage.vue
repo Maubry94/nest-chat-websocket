@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
+import UserAvatar from "../components/UserAvatar.vue";
 import { TheLabel } from "@/components/ui/label";
 import { TheInput } from "@/components/ui/input";
 
@@ -9,9 +10,16 @@ const { user } = useUserInformation();
 <template>
 	<section class="h-full flex flex-col justify-center items-center">
 		<div class="w-full max-w-md p-8 bg-card border border-border rounded-lg shadow-md">
-			<h2 class="mb-6 text-2xl font-bold text-center">
-				Mon profil
-			</h2>
+			<div class="flex flex-col items-center mb-6">
+				<UserAvatar
+					size="lg"
+					url="https://picsum.photos/200"
+				/>
+
+				<h2 class="text-2xl font-bold text-center">
+					Mon profil
+				</h2>
+			</div>
 
 			<form class="space-y-4">
 				<div class="space-y-2">

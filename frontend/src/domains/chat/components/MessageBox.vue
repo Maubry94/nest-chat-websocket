@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { TheTextarea } from "@/components/ui/textarea";
 import { TheButton } from "@/components/ui/button";
-import { Send } from "lucide-vue-next";
+import TheIcon from "@/components/TheIcon.vue";
 
 const emit = defineEmits<(e: "send", value: string) => void>();
 
@@ -31,9 +31,9 @@ function handleSend() {
 			class="h-full aspect-square"
 			@click="handleSend"
 		>
-			<component
-				:is="Send"
-				class="size-5"
+			<TheIcon
+				name="send"
+				size="xl"
 			/>
 		</TheButton>
 	</div>
