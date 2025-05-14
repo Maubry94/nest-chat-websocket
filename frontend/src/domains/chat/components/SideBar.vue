@@ -4,6 +4,7 @@ import { routerPageName } from "@/router/routerPageName";
 import { useSonner } from "@/composables/useSonner";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import type { Conversation } from "@/schemas/conversationSchema";
+import { conversations } from "@/mocks/conversations";
 import { computed, ref } from "vue";
 import { TheInput } from "@/components/ui/input";
 import { TheButton } from "@/components/ui/button";
@@ -14,45 +15,11 @@ const { sonnerError, sonnerMessage } = useSonner();
 const { deleteAccessToken } = useUserInformation();
 
 // Mock des conversations
-const conversations = ref<Conversation[]>([
-	{
-		id: "b1e7c8a2-1f2d-4e3b-9a7c-1234567890ab",
-		name: "Groupe Dev",
-		messages: [],
-		lastMessage: {
-			sender: "them",
-			user: "Alice",
-			content: "Coucou !",
-			createdAt: new Date().toISOString(),
-		},
-	},
-	{
-		id: "a2c9d7b3-2e4f-5c6d-8b9e-abcdef123456",
-		name: "Alice",
-		messages: [],
-		lastMessage: {
-			sender: "them",
-			user: "Alice",
-			content: "Salut !",
-			createdAt: new Date().toISOString(),
-		},
-	},
-	{
-		id: "c3d8e9f4-3a5b-6d7e-9c0f-fedcba654321",
-		name: "Bob",
-		messages: [],
-		lastMessage: {
-			sender: "them",
-			user: "Bob",
-			content: "Yo !",
-			createdAt: new Date().toISOString(),
-		},
-	},
-]);
+const convs = ref<Conversation[]>(conversations);
 // End Mock
 
 const search = ref("");
-const filteredConversations = computed(() => conversations.value.filter((conv) => conv.name.toLowerCase().includes(search.value.toLowerCase())));
+const filteredConvs = computed(() => convs.value.filter((conv) => conv.name.toLowerCase().includes(search.value.toLowerCase())));
 
 function logout() {
 	try {
@@ -86,7 +53,7 @@ function logout() {
 		<nav class="flex-1 mt-2 overflow-y-auto">
 			<ul class="space-y-1">
 				<li
-					v-for="conv in filteredConversations"
+					v-for="conv in filteredConvs"
 					:key="conv.id"
 				>
 					<RouterLink
@@ -105,7 +72,7 @@ function logout() {
 				</li>
 
 				<li
-					v-if="filteredConversations.length === 0"
+					v-if="filteredConvs.length === 0"
 					class="px-3 py-2 text-sm text-muted-foreground"
 				>
 					Aucune conversation trouvée.
