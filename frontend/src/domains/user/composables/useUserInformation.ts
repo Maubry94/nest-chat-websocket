@@ -1,10 +1,11 @@
+import type { User } from "@/schemas/userSchema";
 import { useLocalStorageItem } from "@/composables/useLocalStorageItem";
 import backendClient from "@/lib/axios";
 import { HttpStatusCode } from "axios";
 import { computed, ref, watch } from "vue";
 
 const accessTokenLocalStorageKey = "accessToken";
-const user = ref(null);
+const user = ref<User | null>(null);
 
 export function useUserInformation() {
 	const accessTokenItem = useLocalStorageItem<string>(accessTokenLocalStorageKey);
