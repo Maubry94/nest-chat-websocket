@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DarkModeToggle from "@/components/DarkModeToggle.vue";
-import MobileNav from "@/components/MobileNav.vue";
+import MobileNav from "@/domains/chat/components/MobileNav.vue";
 
 interface Props {
 	chatName?: string;

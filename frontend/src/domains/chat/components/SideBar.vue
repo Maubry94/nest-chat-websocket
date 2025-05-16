@@ -7,12 +7,13 @@ import type { Conversation } from "@/schemas/conversationSchema";
 import { conversations } from "@/mocks/conversations";
 import { computed, ref } from "vue";
 import { TheInput } from "@/components/ui/input";
+import UserAvatar from "@/domains/user/components/UserAvatar.vue";
 import { TheButton } from "@/components/ui/button";
 
 const router = useRouter();
 const { LOGIN_PAGE, PROFILE_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
-const { deleteAccessToken } = useUserInformation();
+const { deleteAccessToken, user } = useUserInformation();
 
 // Mock des conversations
 const convs = ref<Conversation[]>(conversations);
@@ -80,7 +81,16 @@ function logout() {
 			</ul>
 		</nav>
 
-		<div class="pt-2 space-y-2">
+		<div class="pt-2 flex flex-col gap-2 items-center">
+			<div
+				v-if="user?.username"
+				class="mb-2 flex items-center gap-2 text-sm text-muted-foreground"
+			>
+				<UserAvatar />
+
+				<span>{{ user.username }}</span>
+			</div>
+
 			<TheButton
 				as-child
 				class="w-full"
