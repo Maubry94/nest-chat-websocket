@@ -1,5 +1,5 @@
 import "./style.css";
-
+import "@/lib/axios";
 import { createApp } from "vue";
 
 import App from "./App.vue";

@@ -1,4 +1,4 @@
-import { CurrentUser } from "@/guards/auth/must-be-connected.guard";
+import { ConnectedUser } from "@/guards/must-be-connected.guard";
 import { LoginDto } from "@/schemas/auth/login";
 import { TokenService } from "@/services/auth/token";
 import { FindOrCreateUserUsecase } from "@/services/auth/usecases/findOrCreateUser";
@@ -12,7 +12,11 @@ export class AuthController {
 		private readonly findOrCreateUser: FindOrCreateUserUsecase,
 	) {}
 
-	@Post("/authentication")
+	public static readonly AUTHENTICATION = "/authentication";
+
+	public static readonly GET_USER = "/user";
+
+	@Post(AuthController.AUTHENTICATION)
 	public async login(@Body() body: LoginDto) {
 		const email = await this.tokenService.checkFirebaseToken(body.firebaseToken);
 
@@ -24,7 +28,7 @@ export class AuthController {
 	}
 
 	@Get("/user")
-	public getUser(@CurrentUser() user: User) {
+	public getUser(@ConnectedUser() user: User) {
 		return user;
 	}
 }

@@ -1,6 +1,5 @@
 import type { User } from "@/schemas/userSchema";
 import { useLocalStorageItem } from "@/composables/useLocalStorageItem";
-import backendClient from "@/lib/axios";
 import { HttpStatusCode } from "axios";
 import { computed, ref, watch } from "vue";
 
@@ -16,7 +15,6 @@ export function useUserInformation() {
 
 	function deleteAccessToken() {
 		accessTokenItem.value = null;
-		user.value = null;
 	}
 
 	const isConnected = computed(() => !!user.value);
@@ -24,11 +22,9 @@ export function useUserInformation() {
 
 	async function fetchInformation() {
 		try {
-			const response = await backendClient.get("/user", {
-				headers: {
-					Authorization: accessTokenItem.value,
-				},
-			});
+			const response = await window.backendClient.get(
+				"/user",
+			);
 
 			if (response.status === HttpStatusCode.Ok) {
 				user.value = response.data;

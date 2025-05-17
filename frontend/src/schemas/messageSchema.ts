@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const messageSchema = z.object({
-	sender: z.enum(["you", "them"]),
-	user: z.string(),
+	sender: z.string(),
 	content: z.string(),
-	createdAt: z.string(),
+	sendAt: z.string(),
+	readAt: z.string().nullable(),
 });
 
 export type Message = z.infer<typeof messageSchema>;

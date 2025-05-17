@@ -3,24 +3,33 @@ import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 import { useSonner } from "@/composables/useSonner";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
-import type { Conversation } from "@/schemas/conversationSchema";
-import { conversations } from "@/mocks/conversations";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { TheInput } from "@/components/ui/input";
 import UserAvatar from "@/domains/user/components/UserAvatar.vue";
 import { TheButton } from "@/components/ui/button";
 
 const router = useRouter();
-const { LOGIN_PAGE, PROFILE_PAGE } = routerPageName;
+const { LOGIN_PAGE, PROFILE_PAGE, CHAT_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { deleteAccessToken, user } = useUserInformation();
 
-// Mock des conversations
-const convs = ref<Conversation[]>(conversations);
-// End Mock
+interface Friend {
+	name: string;
+	id: string;
+}
+
+const convs = ref<Friend[]>([
+	{
+		name: "liamdu92",
+		id: "9772943f-99db-4a24-a7a0-017ab51a8301",
+	},
+	{
+		name: "liam.macquaire2002",
+		id: "d9f5c1b0-3e24-4b95-9aec-729c83a62fd6",
+	},
+]);
 
 const search = ref("");
-const filteredConvs = computed(() => convs.value.filter((conv) => conv.name.toLowerCase().includes(search.value.toLowerCase())));
 
 function logout() {
 	try {
@@ -54,26 +63,22 @@ function logout() {
 		<nav class="flex-1 mt-2 overflow-y-auto">
 			<ul class="space-y-1">
 				<li
-					v-for="conv in filteredConvs"
+					v-for="conv in convs"
 					:key="conv.id"
 				>
 					<RouterLink
-						:to="{ name: 'chat', params: { id: conv.id } }"
+						v-if="conv.name !== user?.username"
+						:to="{ name: CHAT_PAGE, params: { userId: conv.id } }"
 						class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 					>
 						<div class="font-medium">
 							{{ conv.name }}
 						</div>
-
-						<div class="text-xs text-muted-foreground truncate">
-							<span class="font-semibold">{{ conv.lastMessage.user }} :</span>
-							{{ conv.lastMessage.content }}
-						</div>
 					</RouterLink>
 				</li>
 
 				<li
-					v-if="filteredConvs.length === 0"
+					v-if="convs.length === 0"
 					class="px-3 py-2 text-sm text-muted-foreground"
 				>
 					Aucune conversation trouvée.

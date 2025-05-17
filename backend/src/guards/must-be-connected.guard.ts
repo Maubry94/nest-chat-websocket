@@ -18,7 +18,7 @@ declare module "express" {
 	}
 }
 
-export const CurrentUser = createParamDecorator(
+export const ConnectedUser = createParamDecorator(
 	(_data: unknown, ctx: ExecutionContext) => {
 		const request = ctx.switchToHttp().getRequest<Request>();
 		return request.user;

@@ -5,7 +5,6 @@ import { useSonner } from "@/composables/useSonner";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
-import backendClient from "@/lib/axios";
 import { HttpStatusCode } from "axios";
 import TheButton from "@/components/ui/button/TheButton.vue";
 
@@ -22,7 +21,7 @@ async function googleSign() {
 		const userCredential = await signInWithPopup(auth, provider);
 		const fireBaseIdToken = await userCredential.user.getIdToken();
 
-		await backendClient
+		await window.backendClient
 			.post<string>(
 				"/authentication",
 				{

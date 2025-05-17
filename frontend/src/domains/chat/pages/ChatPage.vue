@@ -1,56 +1,83 @@
 <script setup lang="ts">
 import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
-import type { Conversation } from "@/schemas/conversationSchema";
-import { conversations } from "@/mocks/conversations";
-import { computed, ref } from "vue";
-import type { Message } from "@/schemas/messageSchema";
+import { computed, onMounted } from "vue";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
 import IsTyping from "../components/IsTyping.vue";
 import MessageBox from "../components/MessageBox.vue";
+import { chatSocket } from "@/lib/socket";
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
+import { useSonner } from "@/composables/useSonner";
+import { useGetConversation } from "../composables/useGetConversation";
 
 const params = useRouteParams({
-	id: z.string(),
+	userId: z.string(),
 });
 
-// Mock des conversations et messages
-const convs = ref<Conversation[]>(conversations);
-// End Mock
+const {
+	conversation,
+} = useGetConversation(
+	computed(() => params.value.userId),
+);
 
-const conversation = computed(() => convs.value.find((conv) => conv.id === params.value.id));
-const messages = computed(() => conversation.value?.messages ?? []);
-const chatName = computed(() => conversation.value?.name ?? "");
+const { user } = useUserInformation();
+
+const { sonnerError } = useSonner();
+
+onMounted(() => {
+	chatSocket.on("receive-message", (msg) => {
+		conversation.value.push({
+			sender: msg.sender,
+			content: msg.message,
+			sendAt: msg.sendAt,
+			readAt: msg.readAt ?? null,
+		});
+	});
+});
 
 function sendMessage(content: string) {
-	if (!content.trim() || !conversation.value) {
+	if (!user.value) {
+		sonnerError("Vous devez être connecté pour envoyer un message.");
 		return;
 	}
-	const newMsg: Message = {
-		sender: "you",
-		user: "Vous",
+
+	if (!content.trim()) {
+		return;
+	}
+
+	chatSocket.emit(
+		"send-message",
+		{
+			receiverId: params.value.userId,
+			message: content,
+		},
+	);
+
+	//TODO: voir comment faire pour ne pas push le message si l'envoi échoue
+	conversation.value.push({
+		sender: user.value.username,
 		content,
-		createdAt: new Date().toISOString(),
-	};
-	conversation.value.messages.push(newMsg);
-	conversation.value.lastMessage = newMsg;
+		sendAt: new Date().toISOString(),
+		readAt: null,
+	});
 }
 </script>
 
 <template>
 	<section class="h-full flex flex-col bg-background">
-		<ChatHeader :chat-name="chatName" />
+		<ChatHeader />
 
 		<ScrollArea class="flex-1 px-4 overflow-y-auto">
 			<div class="space-y-2">
 				<TheMessage
-					v-for="(message, index) in messages"
+					v-for="(message, index) in conversation"
 					:key="index"
 					:sender="message.sender"
-					:user="message.user"
 					:content="message.content"
-					:created-at="message.createdAt"
+					:send-at="message.sendAt"
+					:read-at="message.readAt"
 				/>
 			</div>
 		</ScrollArea>

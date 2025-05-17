@@ -4,11 +4,12 @@ import { FirebaseModule } from "@/providers/firebase/firebase.module";
 import { UserRepository } from "@/repositories/auth/user";
 import { TokenService } from "@/services/auth/token";
 import { FindOrCreateUserUsecase } from "@/services/auth/usecases/findOrCreateUser";
-import { AuthController } from "@/controllers/auth/auth.controller";
+import { AuthController } from "@/controllers/auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 import envs from "@/envs";
-import { MustBeConnected } from "@/guards/auth/must-be-connected.guard";
+import { MustBeConnected } from "@/guards/must-be-connected.guard";
 import { RouteInfo } from "@nestjs/common/interfaces";
+import { MessageController } from "@/controllers/message.controller";
 
 const providers: Provider[] = [
 	FindOrCreateUserUsecase,
@@ -18,7 +19,11 @@ const providers: Provider[] = [
 
 const mustBeConnectedRoutes: RouteInfo[] = [
 	{
-		path: "/user",
+		path: AuthController.GET_USER,
+		method: RequestMethod.GET,
+	},
+	{
+		path: MessageController.GET_MESSAGES_BY_USER_ID,
 		method: RequestMethod.GET,
 	},
 ];
