@@ -8,6 +8,7 @@ import type { Message } from "@/schemas/messageSchema";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
+import IsTyping from "../components/IsTyping.vue";
 import MessageBox from "../components/MessageBox.vue";
 
 const params = useRouteParams({
@@ -54,7 +55,12 @@ function sendMessage(content: string) {
 			</div>
 		</ScrollArea>
 
-		<div class="shrink-0 pb-4">
+		<div class="relative shrink-0 pb-4">
+			<IsTyping
+				:users="['Bob', 'Clove', 'Alice']"
+				class="absolute -top-8 z-10"
+			/>
+
 			<MessageBox @send="sendMessage" />
 		</div>
 	</section>
