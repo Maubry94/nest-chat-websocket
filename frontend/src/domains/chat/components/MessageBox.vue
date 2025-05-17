@@ -17,7 +17,6 @@ function handleSend() {
 	message.value = "";
 }
 </script>
-
 <template>
 	<div class="h-16 mx-4 flex gap-2">
 		<TheTextarea

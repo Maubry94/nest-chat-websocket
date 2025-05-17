@@ -15,11 +15,16 @@ for (const pathEnv of [".env.local", ".env"]) {
 export default global.ENV = z
 	.object({
 		PORT: z.coerce.number().default(DEFAULT_PORT),
+		CHAT_GATEWAY_PORT: z.coerce.number(),
 		HOST: z.string().default(DEFAULT_HOST),
+		REDIS_HOST: z.string(),
+		REDIS_PORT: z.coerce.number(),
 		ENVIRONMENT: z.enum(["DEV", "PROD", "TEST"]).default(DEFAULT_ENVIRONMENT),
 		FIREBASE_CREDENTIAL_PATH: z.string(),
 		JWT_KEY: z.string(),
 		JWT_TIME: z.coerce.number(),
+		MONGO_DB_NAME: z.string(),
+		MONGO_DATABASE_URL: z.string(),
 	})
 	.readonly()
 	.parse(process.env);

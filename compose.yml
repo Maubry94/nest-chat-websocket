@@ -9,6 +9,15 @@ services:
     user: 1000:1000
     command: npm i
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   vue:
     image: node:22.14.0
     volumes:
@@ -65,3 +74,4 @@ services:
 volumes:
   postgres_data:
   mongo_data:
+  redis_data:

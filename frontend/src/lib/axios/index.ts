@@ -1,8 +1,15 @@
-
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import { envs } from "@/envs";
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 
-export const backendClient = axios.create({
+const { accessToken } = useUserInformation();
+declare global {
+	interface Window {
+		backendClient: AxiosInstance;
+	}
+}
+
+export const backendClient: AxiosInstance = axios.create({
 	baseURL: envs.VITE_API_BASE_URL,
 	timeout: 10000,
 	headers: {
@@ -10,4 +17,13 @@ export const backendClient = axios.create({
 	},
 });
 
-export default backendClient;
+backendClient.interceptors.request.use(
+	(config) => {
+		if (accessToken.value) {
+			config.headers.Authorization = accessToken.value ?? undefined;
+		}
+		return config;
+	},
+);
+
+window.backendClient = backendClient;

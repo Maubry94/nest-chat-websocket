@@ -27,8 +27,8 @@
       "clear": "./scripts/clear.sh",
       "dev:nestjs": "npm -w @backend/nest-chat-websocket run dev",
       "dev:vue": "npm -w @frontend/nest-chat-websocket run dev",
-      "docker:nestjs:prisma:migrate": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:migration",
-      "docker:nestjs:prisma:studio": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:studio"
+      "docker:prisma:migrate": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:migration",
+      "docker:prisma:studio": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:studio"
     },
     "dependencies": {},
     "devDependencies": {}
