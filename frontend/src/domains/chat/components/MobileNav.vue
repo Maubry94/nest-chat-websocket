@@ -15,22 +15,6 @@ const { LOGIN_PAGE, PROFILE_PAGE, CHAT_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { deleteAccessToken, user } = useUserInformation();
 
-interface Friend {
-	name: string;
-	id: string;
-}
-
-const convs = ref<Friend[]>([
-	{
-		name: "liamdu92",
-		id: "9772943f-99db-4a24-a7a0-017ab51a8301",
-	},
-	{
-		name: "liam.macquaire2002",
-		id: "d9f5c1b0-3e24-4b95-9aec-729c83a62fd6",
-	},
-]);
-
 const search = ref("");
 
 function logout() {
@@ -81,23 +65,34 @@ function logout() {
 			<nav class="flex-1 mt-2 overflow-y-auto">
 				<ul class="space-y-1">
 					<li
-						v-for="conv in convs"
-						:key="conv.id"
+						v-for="myConversation in user?.myConversations"
+						:key="myConversation._id"
 					>
 						<SheetClose as-child>
 							<RouterLink
-								:to="{ name: CHAT_PAGE, params: { userId: conv.id } }"
+								:to="{ name: CHAT_PAGE, params: { userId: myConversation.lastMessage.senderId } }"
 								class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 							>
 								<div class="font-medium">
-									{{ conv.name }}
+									{{ myConversation.lastMessage.content }}
+								</div>
+
+								<div class="text-xs text-muted-foreground truncate">
+									<span class="font-semibold">
+										{{
+											myConversation.isConnectedSender ?
+												"(Vous)"
+												: myConversation.lastMessage.senderUsername
+										}} :
+									</span>
+									{{ myConversation.lastMessage.content }}
 								</div>
 							</RouterLink>
 						</SheetClose>
 					</li>
 
 					<li
-						v-if="convs.length === 0"
+						v-if="user?.myConversations.length === 0"
 						class="px-3 py-2 text-sm text-muted-foreground"
 					>
 						Aucune conversation trouvée.
@@ -107,12 +102,11 @@ function logout() {
 
 			<div class="pt-2 flex flex-col gap-2 items-center">
 				<div
-					v-if="user?.username"
 					class="mb-2 flex items-center gap-2 text-sm text-muted-foreground"
 				>
 					<UserAvatar />
 
-					<span>{{ user.username }}</span>
+					<span>{{ user?.username }}</span>
 				</div>
 
 				<SheetClose as-child>

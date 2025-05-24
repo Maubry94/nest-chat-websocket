@@ -3,12 +3,16 @@ import {
 	Menu,
 	User,
 	Send,
+	Check,
+	CheckCheck,
 } from "lucide-vue-next";
 
 const iconMapper = {
 	menu: Menu,
 	user: User,
 	send: Send,
+	check: Check,
+	checkCheck: CheckCheck,
 };
 
 const sizeMapper = {

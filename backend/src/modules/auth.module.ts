@@ -10,6 +10,7 @@ import envs from "@/envs";
 import { MustBeConnected } from "@/guards/must-be-connected.guard";
 import { RouteInfo } from "@nestjs/common/interfaces";
 import { MessageController } from "@/controllers/message.controller";
+import { ConversationController } from "@/controllers/conversation.controller";
 
 const providers: Provider[] = [
 	FindOrCreateUserUsecase,
@@ -24,6 +25,10 @@ const mustBeConnectedRoutes: RouteInfo[] = [
 	},
 	{
 		path: MessageController.GET_MESSAGES_BY_USER_ID,
+		method: RequestMethod.GET,
+	},
+	{
+		path: ConversationController.GET_MY_CONVERSATIONS,
 		method: RequestMethod.GET,
 	},
 ];

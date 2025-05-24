@@ -1,10 +1,11 @@
+import { Message } from "@/providers/mongo/entities/message";
 import { MongoRepository } from "@/providers/mongo/mongo.module";
-import { UserRepository } from "@/repositories/auth/user";
 import { Inject, Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
+import { WithId } from "mongodb";
 
-interface InputGetConversation {
-	userWantedId: User["id"];
+interface InputGetMessages {
+	receiverId: User["id"];
 	connectedUserId: User["id"];
 }
 
@@ -19,11 +20,10 @@ export class MessageService {
 	public constructor(
 		@Inject("MONGO_REPOSITORY")
 		private readonly mongodb: MongoRepository,
-		private readonly userRepository: UserRepository,
 	) {}
 
-	public async createMessage(params: InputCreateMessage): Promise<void> {
-		await this.mongodb.messageCollection.insertOne({
+	public async createMessage(params: InputCreateMessage) {
+		return this.mongodb.messageCollection.insertOne({
 			senderId: params.senderId,
 			receiverId: params.receiverId,
 			content: params.message,
@@ -32,8 +32,21 @@ export class MessageService {
 		});
 	}
 
-	public getConversation(params: InputGetConversation) {
-		const { userWantedId, connectedUserId } = params;
+	public async updateMessage(message: WithId<Message>): Promise<void> {
+		await this.mongodb.messageCollection.updateOne(
+			{
+				_id: message._id,
+			},
+			{
+				$set: {
+					...message,
+				},
+			},
+		);
+	}
+
+	public getMessages(params: InputGetMessages) {
+		const { receiverId, connectedUserId } = params;
 
 		return this.mongodb.messageCollection
 			.find({
@@ -44,14 +57,14 @@ export class MessageService {
 								senderId: connectedUserId,
 							},
 							{
-								receiverId: userWantedId,
+								receiverId,
 							},
 						],
 					},
 					{
 						$and: [
 							{
-								senderId: userWantedId,
+								senderId: receiverId,
 							},
 							{
 								receiverId: connectedUserId,
@@ -61,19 +74,8 @@ export class MessageService {
 				],
 			})
 			.sort({
-				createdAt: -1,
+				sendAt: 1,
 			})
-			.map(
-				async(message) => {
-					const sender = await this.userRepository.findOneById(message.senderId);
-					return {
-						sender: sender.username,
-						content: message.content,
-						sendAt: message.sendAt,
-						readAt: message.readAt,
-					};
-				},
-			)
 			.toArray();
 	}
 }

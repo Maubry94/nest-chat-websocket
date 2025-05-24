@@ -29,7 +29,7 @@ export class SessionService {
 		}
 	}
 
-	public async getSocketsByUser(userId: string): Promise<string[]> {
+	public async getSocketsIdsByUser(userId: string): Promise<string[]> {
 		return this.redis.smembers(this.getUserSessionsKey(userId));
 	}
 

@@ -1,14 +1,14 @@
-import type { Message } from "@/schemas/messageSchema";
+import type { ConversationList } from "@/lib/axios/types/conversationListSchema";
 import { HttpStatusCode } from "axios";
 import { ref, watch, type Ref } from "vue";
 
-export function useGetConversation(
+export function useGetConversationList(
 	receiverId: Ref<string>,
 ) {
-	const conversation = ref<Message[]>([]);
+	const conversation = ref<ConversationList | null>(null);
 
-	async function getConversation() {
-		await window.backendClient.get<Message[]>(
+	async function getConversationList() {
+		await window.backendClient.get<ConversationList>(
 			`/messages/${receiverId.value}`,
 		).then(
 			(response) => {
@@ -22,13 +22,13 @@ export function useGetConversation(
 	watch(
 		receiverId,
 		() => {
-			void getConversation();
+			void getConversationList();
 		},
 		{ immediate: true },
 	);
 
 	return {
 		conversation,
-		getConversation,
+		getConversationList,
 	};
 }

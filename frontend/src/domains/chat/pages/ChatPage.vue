@@ -7,10 +7,10 @@ import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
 import IsTyping from "../components/IsTyping.vue";
 import MessageBox from "../components/MessageBox.vue";
-import { chatSocket } from "@/lib/socket";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import { useSonner } from "@/composables/useSonner";
-import { useGetConversation } from "../composables/useGetConversation";
+import { useGetConversationList } from "../composables/useGetConversationList";
+import { chatSocket, chatSocketConfig } from "@/lib/socket";
 
 const params = useRouteParams({
 	userId: z.string(),
@@ -18,7 +18,7 @@ const params = useRouteParams({
 
 const {
 	conversation,
-} = useGetConversation(
+} = useGetConversationList(
 	computed(() => params.value.userId),
 );
 
@@ -27,8 +27,16 @@ const { user } = useUserInformation();
 const { sonnerError } = useSonner();
 
 onMounted(() => {
+	chatSocket.emit("check-readAt", {
+		receiverId: params.value.userId,
+	});
+
 	chatSocket.on("receive-message", (msg) => {
-		conversation.value.push({
+		if (!conversation.value) {
+			return;
+		}
+		conversation.value.messages.push({
+			_id: msg._id,
 			sender: msg.sender,
 			content: msg.message,
 			sendAt: msg.sendAt,
@@ -37,7 +45,24 @@ onMounted(() => {
 	});
 });
 
-function sendMessage(content: string) {
+chatSocket.on(
+	"messages-readed",
+	(response) => {
+		if (!conversation.value) {
+			return;
+		}
+
+		const message = conversation.value.messages.find(
+			(msg) => msg._id === response.messageId,
+		);
+
+		if (message) {
+			message.readAt = response.readAt;
+		}
+	},
+);
+
+async function sendMessage(content: string) {
 	if (!user.value) {
 		sonnerError("Vous devez être connecté pour envoyer un message.");
 		return;
@@ -47,38 +72,61 @@ function sendMessage(content: string) {
 		return;
 	}
 
-	chatSocket.emit(
-		"send-message",
-		{
-			receiverId: params.value.userId,
-			message: content,
-		},
-	);
+	try {
+		const serverMessageId = await chatSocket
+			.timeout(chatSocketConfig.timeout)
+			.emitWithAck(
+				"send-message",
+				{
+					receiverId: params.value.userId,
+					message: content,
+				},
+			);
 
-	//TODO: voir comment faire pour ne pas push le message si l'envoi échoue
-	conversation.value.push({
-		sender: user.value.username,
-		content,
-		sendAt: new Date().toISOString(),
-		readAt: null,
-	});
+		conversation.value?.messages.push({
+			_id: serverMessageId,
+			sender: user.value.username,
+			content,
+			sendAt: new Date().toISOString(),
+			readAt: null,
+		});
+	} catch {
+		sonnerError("Échec d'envoi du message.");
+	}
 }
 </script>
 
 <template>
 	<section class="h-full flex flex-col bg-background">
-		<ChatHeader />
+		<ChatHeader
+			v-if="conversation"
+			:chat-name="conversation.conversationName"
+		/>
 
-		<ScrollArea class="flex-1 px-4 overflow-y-auto">
-			<div class="space-y-2">
+		<ScrollArea
+			v-if="conversation"
+			class="flex-1 px-4 overflow-y-auto"
+		>
+			<div
+				v-if="conversation.messages.length > 0"
+				class="space-y-2"
+			>
 				<TheMessage
-					v-for="(message, index) in conversation"
+					v-for="(message, index) in conversation.messages"
 					:key="index"
-					:sender="message.sender"
-					:content="message.content"
-					:send-at="message.sendAt"
-					:read-at="message.readAt"
+					:message="message"
 				/>
+			</div>
+
+			<div
+				v-else
+				class="flex flex-col items-center justify-center flex-1 px-4"
+			>
+				<div class="flex flex-col items-center justify-center gap-2">
+					<p class="text-lg text-text-secondary">
+						Aucun message pour le moment.
+					</p>
+				</div>
 			</div>
 		</ScrollArea>
 
