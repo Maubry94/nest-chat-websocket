@@ -40,53 +40,55 @@ const chatName = computed(() => props.chatName ? props.chatName : "");
 				</div>
 			</div>
 
-			<div class="relative flex-grow max-w-3xl">
-				<TheInput
-					v-model="searchedUsername"
-					type="text"
-					placeholder="Rechercher un utilisateur..."
-					class="pl-10 pr-4 py-1.5 h-9 w-full rounded-md border border-border bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
-				/>
+			<div class="w-full max-w-xs flex gap-2">
+				<div class="relative flex-grow">
+					<TheInput
+						v-model="searchedUsername"
+						type="text"
+						placeholder="Rechercher un utilisateur..."
+						class="pl-10 pr-4 bg-muted"
+					/>
 
-				<TheIcon
-					name="userSearch"
-					class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none"
-				/>
+					<TheIcon
+						name="userSearch"
+						class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none"
+					/>
 
-				<ul
-					v-if="searchedUsername"
-					class="absolute w-full mt-2 bg-popover border border-border rounded-md shadow-md z-20 max-h-60 overflow-y-auto"
-				>
-					<li
-						v-if="users.length === 0"
-						class="px-4 py-2 text-sm text-muted-foreground text-center"
+					<ul
+						v-if="searchedUsername"
+						class="absolute w-full mt-2 bg-popover border border-border rounded-md shadow-md z-20 max-h-60 overflow-y-auto"
 					>
-						Aucun utilisateur trouvé
-					</li>
-
-					<li
-						v-for="searchedUser in users"
-						:key="searchedUser.id"
-						class="px-4 py-2 text-sm hover:bg-muted cursor-pointer transition"
-					>
-						<RouterLink
-							v-if="searchedUser.id !== user?.id"
-							:to="{ name: CHAT_PAGE, params: { userId: searchedUser.id } }"
+						<li
+							v-if="users.length === 0"
+							class="px-4 py-2 text-sm text-muted-foreground text-center"
 						>
-							{{ searchedUser.username }}
-						</RouterLink>
+							Aucun utilisateur trouvé
+						</li>
 
-						<RouterLink
-							v-else
-							:to="{ name: PROFILE_PAGE }"
+						<li
+							v-for="searchedUser in users"
+							:key="searchedUser.id"
+							class="px-4 py-2 text-sm hover:bg-muted cursor-pointer transition"
 						>
-							{{ "(Vous) " + user.username }}
-						</RouterLink>
-					</li>
-				</ul>
+							<RouterLink
+								v-if="searchedUser.id !== user?.id"
+								:to="{ name: CHAT_PAGE, params: { userId: searchedUser.id } }"
+							>
+								{{ searchedUser.username }}
+							</RouterLink>
+
+							<RouterLink
+								v-else
+								:to="{ name: PROFILE_PAGE }"
+							>
+								{{ "(Vous) " + user.username }}
+							</RouterLink>
+						</li>
+					</ul>
+				</div>
+
+				<DarkModeToggle />
 			</div>
-
-			<DarkModeToggle />
 		</div>
 	</header>
 </template>
