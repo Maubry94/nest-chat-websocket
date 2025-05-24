@@ -1,35 +1,89 @@
 <script setup lang="ts">
 import DarkModeToggle from "@/components/DarkModeToggle.vue";
+import TheInput from "@/components/ui/input/TheInput.vue";
 import MobileNav from "@/domains/chat/components/MobileNav.vue";
+import TheIcon from "@/components/TheIcon.vue";
+import { computed, ref } from "vue";
+import { useSearchByUsername } from "../composables/useSearchByUsername";
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
+import { routerPageName } from "@/router/routerPageName";
 
 interface Props {
 	chatName?: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const { CHAT_PAGE, PROFILE_PAGE } = routerPageName;
+
+const searchedUsername = ref("");
+const { user } = useUserInformation();
+
+const { users } = useSearchByUsername(
+	computed(() => searchedUsername.value),
+);
+
+const chatName = computed(() => props.chatName ? props.chatName : "");
 </script>
 
 <template>
-	<header
-		class="sticky top-0 z-10 h-18 px-6 py-4 flex gap-4 items-center bg-card border-b border-border"
-	>
-		<div class="w-full flex items-center justify-between">
-			<div class="flex gap-4 items-center">
+	<header class="sticky top-0 z-10 px-6 py-4 bg-card border-b border-border shadow-sm">
+		<div class="flex items-center justify-between gap-6">
+			<div class="flex items-center gap-4 shrink-0">
 				<MobileNav />
 
-				<h2
-					v-if="chatName"
-					class="text-lg font-semibold"
-				>
-					{{ chatName }}
-				</h2>
+				<div>
+					<h1
+						class="text-lg font-semibold tracking-tight"
+					>
+						{{ chatName }}
+					</h1>
+				</div>
+			</div>
 
-				<h1
-					v-else
-					class="text-2xl font-bold text-sidebar-primary"
+			<div class="relative flex-grow max-w-3xl">
+				<TheInput
+					v-model="searchedUsername"
+					type="text"
+					placeholder="Rechercher un utilisateur..."
+					class="pl-10 pr-4 py-1.5 h-9 w-full rounded-md border border-border bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
+				/>
+
+				<TheIcon
+					name="userSearch"
+					class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none"
+				/>
+
+				<ul
+					v-if="searchedUsername"
+					class="absolute w-full mt-2 bg-popover border border-border rounded-md shadow-md z-20 max-h-60 overflow-y-auto"
 				>
-					Nestflix & Chat
-				</h1>
+					<li
+						v-if="users.length === 0"
+						class="px-4 py-2 text-sm text-muted-foreground text-center"
+					>
+						Aucun utilisateur trouvé
+					</li>
+
+					<li
+						v-for="searchedUser in users"
+						:key="searchedUser.id"
+						class="px-4 py-2 text-sm hover:bg-muted cursor-pointer transition"
+					>
+						<RouterLink
+							v-if="searchedUser.id !== user?.id"
+							:to="{ name: CHAT_PAGE, params: { userId: searchedUser.id } }"
+						>
+							{{ searchedUser.username }}
+						</RouterLink>
+
+						<RouterLink
+							v-else
+							:to="{ name: PROFILE_PAGE }"
+						>
+							{{ "(Vous) " + user.username }}
+						</RouterLink>
+					</li>
+				</ul>
 			</div>
 
 			<DarkModeToggle />

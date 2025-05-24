@@ -30,4 +30,15 @@ export class UserRepository {
 			},
 		});
 	}
+
+	public async searchByUsername(username: string) {
+		return this.prisma.user.findMany({
+			where: {
+				username: {
+					contains: username,
+					mode: "insensitive",
+				},
+			},
+		});
+	}
 }

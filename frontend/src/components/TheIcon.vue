@@ -5,6 +5,7 @@ import {
 	Send,
 	Check,
 	CheckCheck,
+	UserSearch,
 } from "lucide-vue-next";
 
 const iconMapper = {
@@ -13,6 +14,7 @@ const iconMapper = {
 	send: Send,
 	check: Check,
 	checkCheck: CheckCheck,
+	userSearch: UserSearch,
 };
 
 const sizeMapper = {
