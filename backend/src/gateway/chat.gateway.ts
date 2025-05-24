@@ -91,15 +91,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const receiver = await this.userRepository.findOneById(receiverId);
 
 		if (!receiver) {
-			socket.disconnect();
-			throw new Error("Receiver not found");
+			console.error("Receiver not found: ", receiver.username);
+			return;
 		}
 
 		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
 
 		if (sockets.length === ChatGateway.NO_SOCKETS) {
-			socket.disconnect();
-			throw new Error("No sockets found for user");
+			return;
 		}
 
 		const unreadReceiverMessages = await this.messageService.getMessages({
@@ -140,35 +139,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const receiver = await this.userRepository.findOneById(receiverId);
 
 		if (!receiver) {
-			socket.disconnect();
-			throw new Error("Receiver not found");
+			console.error("Receiver not found: ", receiver.username);
+			return;
 		}
 
 		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
-
-		if (sockets.length === ChatGateway.NO_SOCKETS) {
-			socket.disconnect();
-			throw new Error("No sockets found for user");
-		}
-
 		const sender = await this.userRepository.findOneById(senderId);
 
+		if (!sender) {
+			console.error("Receiver not found: ", sender.username);
+			return;
+		}
+
 		const createdMessage = await this.messageService.createMessage({
-			senderId: senderId,
-			receiverId: receiverId,
-			message: message,
+			senderId,
+			receiverId,
+			message,
 		});
 
-		sockets.forEach(
-			(socketId) => {
+		if (sockets.length > ChatGateway.NO_SOCKETS) {
+			sockets.forEach((socketId) => {
 				this.server.to(socketId).emit("receive-message", {
 					_id: createdMessage.insertedId,
 					sender: sender.username,
-					message: message,
+					message,
 					sendAt: new Date().toISOString(),
 				});
-			},
-		);
+			});
+		}
 
 		return createdMessage.insertedId;
 	}

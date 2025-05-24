@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migration": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "postinstall": "npm run prisma:generate"
+    "postinstall": "npm run prisma:generate && npm run prisma:migration"
   },
   "dependencies": {
     "@nestjs/common": "11.1.0",
