@@ -19,7 +19,7 @@ const searchedUsername = ref("");
 const { user } = useUserInformation();
 
 const { users } = useSearchByUsername(
-	computed(() => searchedUsername.value),
+	computed(() => searchedUsername.value || null),
 );
 
 const chatName = computed(() => props.chatName ? props.chatName : "");

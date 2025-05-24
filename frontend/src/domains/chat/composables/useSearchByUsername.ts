@@ -3,7 +3,7 @@ import { HttpStatusCode } from "axios";
 import { ref, watch, type Ref } from "vue";
 
 export function useSearchByUsername(
-	username: Ref<string>,
+	username: Ref<string | null>,
 ) {
 	const users = ref<User[]>([]);
 
@@ -25,7 +25,7 @@ export function useSearchByUsername(
 	watch(
 		username,
 		() => {
-			if (username.value.trim() !== "") {
+			if (username.value) {
 				void searchByUsername();
 			}
 		},
