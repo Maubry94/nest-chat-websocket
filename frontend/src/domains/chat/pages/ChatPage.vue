@@ -33,6 +33,8 @@ const {
 	},
 );
 
+const ZERO = 0;
+
 const {
 	conversation,
 } = useGetConversationList(
@@ -43,7 +45,7 @@ const {
 	},
 );
 
-const { user } = useUserInformation();
+const { user, fetchInformation } = useUserInformation();
 
 onMounted(() => {
 	chatSocket.emit("check-readAt", {
@@ -54,6 +56,11 @@ onMounted(() => {
 		if (!conversation.value) {
 			return;
 		}
+
+		if (conversation.value.messages.length === ZERO) {
+			void fetchInformation();
+		}
+
 		conversation.value.messages.push({
 			_id: msg._id,
 			sender: {
@@ -104,6 +111,10 @@ async function sendMessage(content: string) {
 					message: content,
 				},
 			);
+
+		if (conversation.value?.messages.length === ZERO) {
+			void fetchInformation();
+		}
 
 		conversation.value?.messages.push({
 			_id: serverMessageId,
