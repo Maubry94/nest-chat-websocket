@@ -37,7 +37,10 @@ export class ChatController {
 					const receiver = await this.userRepository.findOneById(receiverId);
 					return {
 						_id,
-						sender: sender.username,
+						sender: {
+							username: sender.username,
+							profileColor: sender.profileColor,
+						},
 						receiver: receiver.username,
 						content,
 						readAt,
@@ -52,9 +55,9 @@ export class ChatController {
 		let conversationName = null;
 
 		if (firstMessage) {
-			conversationName = user.username === firstMessage.sender
+			conversationName = user.username === firstMessage.sender.username
 				? firstMessage.receiver
-				: firstMessage.sender;
+				: firstMessage.sender.username;
 		}
 
 		return {

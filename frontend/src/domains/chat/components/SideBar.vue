@@ -61,11 +61,16 @@ function logout() {
 					:key="myConversation._id"
 				>
 					<RouterLink
-						:to="{ name: CHAT_PAGE, params: { userId: myConversation.lastMessage.senderId } }"
+						:to="{
+							name: CHAT_PAGE,
+							params: {
+								userId: myConversation.conversationReceiverId
+							}
+						}"
 						class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 					>
 						<div class="font-medium">
-							{{ myConversation.lastMessage.senderUsername }}
+							{{ myConversation.conversationName }}
 						</div>
 
 						<div class="text-xs text-muted-foreground truncate">
@@ -94,7 +99,7 @@ function logout() {
 			<div
 				class="mb-2 flex items-center gap-2 text-sm text-muted-foreground"
 			>
-				<UserAvatar />
+				<UserAvatar :profile-color="user?.profileColor" />
 
 				<span>{{ user?.username }}</span>
 			</div>

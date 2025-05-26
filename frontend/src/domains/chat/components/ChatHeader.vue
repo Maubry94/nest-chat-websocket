@@ -22,7 +22,9 @@ const { users } = useSearchByUsername(
 	computed(() => searchedUsername.value || null),
 );
 
-const chatName = computed(() => props.chatName ? props.chatName : "");
+const chatName = computed(() => props.chatName ?? "");
+
+console.log(chatName.value);
 </script>
 
 <template>

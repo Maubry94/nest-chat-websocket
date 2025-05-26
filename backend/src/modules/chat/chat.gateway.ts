@@ -161,7 +161,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			sockets.forEach((socketId) => {
 				this.server.to(socketId).emit("receive-message", {
 					_id: createdMessage.insertedId,
-					sender: sender.username,
+					sender: {
+						username: sender.username,
+						profileColor: sender.profileColor,
+					},
 					message,
 					sendAt: new Date().toISOString(),
 				});

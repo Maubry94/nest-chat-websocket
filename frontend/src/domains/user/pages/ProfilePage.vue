@@ -46,8 +46,7 @@ async function handleUpdateProfileColor() {
 			<div class="w-full max-w-xs lg:max-w-md p-8 bg-card border border-border rounded-lg shadow-md">
 				<div class="flex flex-col items-center mb-6">
 					<UserAvatar
-						size="lg"
-						url="https://picsum.photos/200"
+						:profile-color="user?.profileColor"
 					/>
 
 					<h2 class="text-2xl font-bold text-center">

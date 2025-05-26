@@ -56,7 +56,10 @@ onMounted(() => {
 		}
 		conversation.value.messages.push({
 			_id: msg._id,
-			sender: msg.sender,
+			sender: {
+				username: msg.sender.username,
+				profileColor: msg.sender.profileColor,
+			},
 			content: msg.message,
 			sendAt: msg.sendAt,
 			readAt: msg.readAt ?? null,
@@ -104,7 +107,10 @@ async function sendMessage(content: string) {
 
 		conversation.value?.messages.push({
 			_id: serverMessageId,
-			sender: user.value.username,
+			sender: {
+				username: user.value.username,
+				profileColor: user.value.profileColor,
+			},
 			content,
 			sendAt: new Date().toISOString(),
 			readAt: null,
@@ -127,13 +133,13 @@ async function sendMessage(content: string) {
 			class="flex-1"
 		>
 			<ScrollArea
-				v-if="conversation.messages.length < 0"
+				v-if="conversation.messages.length > 0"
 				class="h-full px-4 overflow-y-auto"
 			>
 				<div class="space-y-2">
 					<TheMessage
-						v-for="(message, index) in conversation.messages"
-						:key="index"
+						v-for="(message) in conversation.messages"
+						:key="message._id"
 						:message="message"
 					/>
 				</div>

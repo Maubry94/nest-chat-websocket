@@ -42,7 +42,8 @@ const formattedReadAt = computed(() => {
 	}
 });
 
-const isSender = computed(() => user.value && props.message.sender === user.value.username);
+const isSender = computed(() => user.value && props.message.sender.username === user.value.username);
+const senderProfileColor = computed(() => props.message.sender.profileColor);
 </script>
 
 <template>
@@ -50,14 +51,14 @@ const isSender = computed(() => user.value && props.message.sender === user.valu
 		class="mb-4 flex items-end gap-2"
 		:class="isSender ? 'flex-row-reverse justify-end' : 'justify-start'"
 	>
-		<UserAvatar url="https://picsum.photos/200" />
+		<UserAvatar :profile-color="senderProfileColor" />
 
 		<div
 			class="flex-1 flex flex-col"
 			:class="isSender ? 'items-end' : 'items-start'"
 		>
 			<div class="mb-1 flex gap-2 items-center text-sm text-muted-foreground">
-				<span class="font-medium">{{ isSender ? 'Vous' : props.message.sender }}</span>
+				<span class="font-medium">{{ isSender ? 'Vous' : props.message.sender.username }}</span>
 			</div>
 
 			<div

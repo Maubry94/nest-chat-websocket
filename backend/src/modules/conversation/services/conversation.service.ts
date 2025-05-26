@@ -4,11 +4,14 @@ import { Inject, Injectable } from "@nestjs/common";
 
 interface LastMessage {
 	senderId: string;
+	receiverId: string;
 	content: string;
 }
 
 interface Conversation {
 	_id: string;
+	conversationName: string;
+	conversationReceiverId: string;
 	isConnectedSender: boolean;
 	lastMessage: LastMessage;
 }
@@ -57,6 +60,7 @@ export class ConversationService {
 					lastMessage: {
 						$first: {
 							senderId: "$senderId",
+							receiverId: "$receiverId",
 							content: "$content",
 						},
 					},
@@ -68,12 +72,15 @@ export class ConversationService {
 				},
 			},
 		]).toArray();
-		const formattedConversations: ConversationWithSender[] = await Promise.all(
+		const formattedConversations = await Promise.all(
 			myConversations.map(
 				async(conversation) => {
 					const sender = await this.userRepository.findOneById(conversation.lastMessage.senderId);
+					const receiver = await this.userRepository.findOneById(conversation.lastMessage.receiverId);
 					return {
 						...conversation,
+						conversationName: sender.id === userId ? receiver.username : sender.username,
+						conversationReceiverId: sender.id === userId ? receiver.id : sender.id,
 						lastMessage: {
 							...conversation.lastMessage,
 							senderUsername: sender ? sender.username : "Unknown",

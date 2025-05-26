@@ -9,33 +9,26 @@ const sizeMapper = {
 };
 
 interface Props {
-	url?: string;
+	profileColor?: string;
 	size?: keyof typeof sizeMapper;
 }
 
 withDefaults(defineProps<Props>(), {
-	url: "",
+	profileColor: "#FFFFFF",
 	size: "sm",
 });
 </script>
 
 <template>
 	<div
-		class="flex-shrink-0 bg-accent rounded-full"
-		:class="sizeMapper[size]"
+		class="flex-shrink-0 rounded-full"
+		:style="{ backgroundColor: profileColor }"
+		:class="[sizeMapper[size]]"
 	>
 		<TheIcon
-			v-if="!url"
 			name="user"
 			size="xl"
 			class="m-2 text-muted-foreground"
 		/>
-
-		<img
-			v-else
-			:src="url"
-			alt="User Avatar"
-			class="w-full h-full flex-shrink-0 object-cover rounded-full"
-		>
 	</div>
 </template>
