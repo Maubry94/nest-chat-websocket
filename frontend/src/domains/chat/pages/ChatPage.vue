@@ -103,24 +103,26 @@ async function sendMessage(content: string) {
 			:chat-name="conversation.conversationName"
 		/>
 
-		<ScrollArea
+		<div
 			v-if="conversation"
-			class="flex-1 px-4 overflow-y-auto"
+			class="flex-1"
 		>
-			<div
-				v-if="conversation.messages.length > 0"
-				class="space-y-2"
+			<ScrollArea
+				v-if="conversation.messages.length < 0"
+				class="h-full px-4 overflow-y-auto"
 			>
-				<TheMessage
-					v-for="(message, index) in conversation.messages"
-					:key="index"
-					:message="message"
-				/>
-			</div>
+				<div class="space-y-2">
+					<TheMessage
+						v-for="(message, index) in conversation.messages"
+						:key="index"
+						:message="message"
+					/>
+				</div>
+			</ScrollArea>
 
 			<div
 				v-else
-				class="flex flex-col items-center justify-center flex-1 px-4"
+				class="h-full flex flex-col items-center justify-center flex-1 px-4"
 			>
 				<div class="flex flex-col items-center justify-center gap-2">
 					<p class="text-lg text-text-secondary">
@@ -128,13 +130,13 @@ async function sendMessage(content: string) {
 					</p>
 				</div>
 			</div>
-		</ScrollArea>
+		</div>
 
 		<div class="relative shrink-0 pb-4">
-			<IsTyping
+			<!-- <IsTyping
 				:users="['Bob', 'Clove', 'Alice']"
 				class="absolute -top-8 z-10"
-			/>
+			/> -->
 
 			<MessageBox @send="sendMessage" />
 		</div>
