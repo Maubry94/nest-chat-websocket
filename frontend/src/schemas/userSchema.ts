@@ -5,6 +5,7 @@ export const userSchema = z.object({
 	id: z.string(),
 	username: z.string(),
 	email: z.string().email(),
+	profileColor: z.string(),
 	myConversations: z.array(myConversationSchema),
 });
 

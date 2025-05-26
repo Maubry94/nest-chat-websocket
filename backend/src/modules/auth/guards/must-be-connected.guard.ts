@@ -9,8 +9,8 @@ import {
 } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
-import { UserRepository } from "@/repositories/auth/user";
-import { TokenService } from "@/services/auth/token";
+import { UserRepository } from "@/modules/user/repositories/user";
+import { TokenService } from "@/modules/auth/services/token";
 
 declare module "express" {
 	interface Request {

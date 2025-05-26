@@ -1,5 +1,5 @@
 import { MongoRepository } from "@/providers/mongo/mongo.module";
-import { UserRepository } from "@/repositories/auth/user";
+import { UserRepository } from "@/modules/user/repositories/user";
 import { Inject, Injectable } from "@nestjs/common";
 
 interface LastMessage {

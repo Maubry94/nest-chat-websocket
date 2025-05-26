@@ -1,5 +1,6 @@
 import { PrismaService } from "@/providers/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { User } from "@prisma/client";
 
 interface CreateUserInput {
 	email: string;
@@ -27,6 +28,15 @@ export class UserRepository {
 			data: {
 				email: input.email,
 				username: input.username,
+			},
+		});
+	}
+
+	public async updateUserProfileColor(user: User) {
+		return this.prisma.user.update({
+			where: { id: user.id },
+			data: {
+				profileColor: user.profileColor,
 			},
 		});
 	}

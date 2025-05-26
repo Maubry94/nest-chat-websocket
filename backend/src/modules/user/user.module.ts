@@ -1,8 +1,8 @@
 import { Module, Provider } from "@nestjs/common";
-import { UserController } from "@/controllers/user.controller";
+import { UserController } from "@/modules/user/user.controller";
 import { PrismaModule } from "@/providers/prisma/prisma.module";
-import { UserRepository } from "@/repositories/auth/user";
-import { UserService } from "@/services/user/user.service";
+import { UserRepository } from "@/modules/user/repositories/user";
+import { UserService } from "@/modules/user/services/user.service";
 
 const providers: Provider[] = [UserRepository, UserService];
 

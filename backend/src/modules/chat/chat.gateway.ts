@@ -8,12 +8,12 @@ import {
 	WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { ZodValidationPipe } from "./zod-validation.pipe";
+import { ZodValidationPipe } from "../../common/zod-validation.pipe";
 import { z } from "zod";
-import { SessionService } from "@/services/chat/session.service";
-import { TokenService } from "@/services/auth/token";
-import { UserRepository } from "@/repositories/auth/user";
-import { MessageService } from "@/services/chat/message.service";
+import { SessionService } from "@/modules/chat/services/session.service";
+import { TokenService } from "@/modules/auth/services/token";
+import { UserRepository } from "@/modules/user/repositories/user";
+import { MessageService } from "@/modules/chat/services/message.service";
 
 const chatMessageSchema = z.object({
 	receiverId: z.string(),
@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const receiver = await this.userRepository.findOneById(receiverId);
 
 		if (!receiver) {
-			console.error("Receiver not found: ", receiver.username);
+			console.error("Receiver not found");
 			return;
 		}
 
@@ -139,7 +139,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const receiver = await this.userRepository.findOneById(receiverId);
 
 		if (!receiver) {
-			console.error("Receiver not found: ", receiver.username);
+			console.error("Receiver not found");
 			return;
 		}
 
@@ -147,7 +147,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const sender = await this.userRepository.findOneById(senderId);
 
 		if (!sender) {
-			console.error("Receiver not found: ", sender.username);
+			console.error("Receiver not found");
 			return;
 		}
 

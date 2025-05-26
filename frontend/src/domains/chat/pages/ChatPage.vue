@@ -11,20 +11,39 @@ import { useUserInformation } from "@/domains/user/composables/useUserInformatio
 import { useSonner } from "@/composables/useSonner";
 import { useGetConversationList } from "../composables/useGetConversationList";
 import { chatSocket, chatSocketConfig } from "@/lib/socket";
+import { useGetUserById } from "@/domains/user/composables/useGetUserById";
+import { useRouter } from "vue-router";
+import { routerPageName } from "@/router/routerPageName";
+
+const router = useRouter();
+const { sonnerError } = useSonner();
+const { HOME_PAGE } = routerPageName;
 
 const params = useRouteParams({
 	userId: z.string(),
 });
 
 const {
+	user: receiver,
+} = useGetUserById(
+	computed(() => params.value.userId),
+	() => {
+		sonnerError("Utilisateur introuvable.");
+		void router.push({ name: HOME_PAGE });
+	},
+);
+
+const {
 	conversation,
 } = useGetConversationList(
 	computed(() => params.value.userId),
+	() => {
+		sonnerError("Conversation introuvable.");
+		void router.push({ name: HOME_PAGE });
+	},
 );
 
 const { user } = useUserInformation();
-
-const { sonnerError } = useSonner();
 
 onMounted(() => {
 	chatSocket.emit("check-readAt", {
@@ -100,7 +119,7 @@ async function sendMessage(content: string) {
 	<section class="h-full flex flex-col bg-background">
 		<ChatHeader
 			v-if="conversation"
-			:chat-name="conversation.conversationName"
+			:chat-name="conversation.conversationName ?? receiver?.username"
 		/>
 
 		<div
@@ -124,19 +143,18 @@ async function sendMessage(content: string) {
 				v-else
 				class="h-full flex flex-col items-center justify-center flex-1 px-4"
 			>
-				<div class="flex flex-col items-center justify-center gap-2">
-					<p class="text-lg text-text-secondary">
-						Aucun message pour le moment.
-					</p>
-				</div>
+				<span class="text-lg text-muted-foreground">
+					Aucun message pour le moment.
+				</span>
 			</div>
 		</div>
 
 		<div class="relative shrink-0 pb-4">
-			<!-- <IsTyping
-				:users="['Bob', 'Clove', 'Alice']"
+			<IsTyping
+				v-if="receiver"
+				:users="[receiver.username]"
 				class="absolute -top-8 z-10"
-			/> -->
+			/>
 
 			<MessageBox @send="sendMessage" />
 		</div>

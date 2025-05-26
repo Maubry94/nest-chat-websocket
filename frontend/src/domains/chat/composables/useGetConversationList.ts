@@ -4,6 +4,7 @@ import { ref, watch, type Ref } from "vue";
 
 export function useGetConversationList(
 	receiverId: Ref<string>,
+	whenFindError: () => void,
 ) {
 	const conversation = ref<ConversationList | null>(null);
 
@@ -14,6 +15,8 @@ export function useGetConversationList(
 			(response) => {
 				if (response.status === HttpStatusCode.Ok) {
 					conversation.value = response.data;
+				} else {
+					whenFindError();
 				}
 			},
 		);

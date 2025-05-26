@@ -1,16 +1,17 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod, type Provider } from "@nestjs/common";
 import { PrismaModule } from "@/providers/prisma/prisma.module";
 import { FirebaseModule } from "@/providers/firebase/firebase.module";
-import { UserRepository } from "@/repositories/auth/user";
-import { TokenService } from "@/services/auth/token";
-import { FindOrCreateUserUsecase } from "@/services/auth/usecases/findOrCreateUser";
-import { AuthController } from "@/controllers/auth.controller";
+import { UserRepository } from "@/modules/user/repositories/user";
+import { TokenService } from "@/modules/auth/services/token";
+import { FindOrCreateUserUsecase } from "@/modules/user/services/usecases/findOrCreateUser";
+import { AuthController } from "@/modules/auth/auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 import envs from "@/envs";
-import { MustBeConnected } from "@/guards/must-be-connected.guard";
+import { MustBeConnected } from "@/modules/auth/guards/must-be-connected.guard";
 import { RouteInfo } from "@nestjs/common/interfaces";
-import { MessageController } from "@/controllers/message.controller";
-import { ConversationController } from "@/controllers/conversation.controller";
+import { MessageController } from "@/modules/chat/message.controller";
+import { ConversationController } from "@/modules/conversation/conversation.controller";
+import { UserController } from "@/modules/user/user.controller";
 
 const providers: Provider[] = [
 	FindOrCreateUserUsecase,
@@ -20,7 +21,7 @@ const providers: Provider[] = [
 
 const mustBeConnectedRoutes: RouteInfo[] = [
 	{
-		path: AuthController.GET_USER,
+		path: UserController.GET_USER,
 		method: RequestMethod.GET,
 	},
 	{
@@ -30,6 +31,10 @@ const mustBeConnectedRoutes: RouteInfo[] = [
 	{
 		path: ConversationController.GET_MY_CONVERSATIONS,
 		method: RequestMethod.GET,
+	},
+	{
+		path: UserController.UPDATE_USER,
+		method: RequestMethod.PATCH,
 	},
 ];
 

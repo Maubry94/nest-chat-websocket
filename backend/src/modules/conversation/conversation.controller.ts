@@ -1,5 +1,5 @@
-import { ConnectedUser } from "@/guards/must-be-connected.guard";
-import { ConversationService, ConversationWithSender } from "@/services/conversation/conversation.service";
+import { ConnectedUser } from "@/modules/auth/guards/must-be-connected.guard";
+import { ConversationService, ConversationWithSender } from "@/modules/conversation/services/conversation.service";
 import { Controller, Get } from "@nestjs/common";
 import { User } from "@prisma/client";
 

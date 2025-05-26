@@ -1,7 +1,7 @@
 import { Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { type User } from "@prisma/client";
 import { type AbstractUsecase } from "@/common/AbstractUsecase";
-import { UserRepository } from "@/repositories/auth/user";
+import { UserRepository } from "@/modules/user/repositories/user";
 
 interface Input {
 	email: string;

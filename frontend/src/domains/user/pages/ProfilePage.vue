@@ -4,8 +4,38 @@ import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import UserAvatar from "../components/UserAvatar.vue";
 import { TheLabel } from "@/components/ui/label";
 import { TheInput } from "@/components/ui/input";
+import TheButton from "@/components/ui/button/TheButton.vue";
+import { ref } from "vue";
+import type { User } from "@/schemas/userSchema";
+import { useSonner } from "@/composables/useSonner";
 
 const { user } = useUserInformation();
+const { sonnerError, sonnerMessage } = useSonner();
+
+const inputProfileColor = ref(user.value?.profileColor);
+
+async function handleUpdateProfileColor() {
+	if (inputProfileColor.value === user.value?.profileColor) {
+		return;
+	}
+
+	try {
+		await window.backendClient.patch<User>(
+			"/update-user",
+			{
+				profileColor: inputProfileColor.value,
+			},
+		);
+
+		if (inputProfileColor.value && user.value) {
+			user.value.profileColor = inputProfileColor.value;
+			sonnerMessage("La couleur de profil a été mise à jour avec succès.");
+		}
+	} catch {
+		inputProfileColor.value = user.value?.profileColor;
+		sonnerError("La couleur de profil doit être une couleur hexadécimale valide.");
+	}
+}
 </script>
 
 <template>
@@ -25,7 +55,10 @@ const { user } = useUserInformation();
 					</h2>
 				</div>
 
-				<form class="space-y-4">
+				<form
+					class="space-y-4"
+					@submit.prevent="handleUpdateProfileColor"
+				>
 					<div class="space-y-2">
 						<TheLabel for="username">
 							Nom d'utilisateur
@@ -33,7 +66,7 @@ const { user } = useUserInformation();
 
 						<TheInput
 							id="username"
-							:model-value="user?.username ?? ''"
+							:model-value="user?.username"
 							disabled
 							autocomplete="username"
 						/>
@@ -46,11 +79,30 @@ const { user } = useUserInformation();
 
 						<TheInput
 							id="email"
-							:model-value="user?.email ?? ''"
+							:model-value="user?.email"
 							disabled
 							autocomplete="email"
 						/>
 					</div>
+
+					<div class="space-y-2">
+						<TheLabel for="profileColor">
+							Couleur de profil
+						</TheLabel>
+
+						<TheInput
+							id="profileColor"
+							v-model="inputProfileColor"
+							autocomplete="profile-color"
+						/>
+					</div>
+
+					<TheButton
+						class="w-full"
+						type="submit"
+					>
+						Modifier
+					</TheButton>
 				</form>
 			</div>
 		</div>
