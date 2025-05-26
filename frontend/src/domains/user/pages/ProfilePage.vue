@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import type { User } from "@/schemas/userSchema";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
+import { ref } from "vue";
+import { useSonner } from "@/composables/useSonner";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import UserAvatar from "../components/UserAvatar.vue";
 import { TheLabel } from "@/components/ui/label";
 import { TheInput } from "@/components/ui/input";
+import ColorPicker from "../components/ColorPicker.vue";
 import TheButton from "@/components/ui/button/TheButton.vue";
-import { ref } from "vue";
-import type { User } from "@/schemas/userSchema";
-import { useSonner } from "@/composables/useSonner";
 
 const { user } = useUserInformation();
 const { sonnerError, sonnerMessage } = useSonner();
@@ -47,6 +48,7 @@ async function handleUpdateProfileColor() {
 				<div class="flex flex-col items-center mb-6">
 					<UserAvatar
 						:profile-color="user?.profileColor"
+						size="md"
 					/>
 
 					<h2 class="text-2xl font-bold text-center">
