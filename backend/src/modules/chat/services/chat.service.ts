@@ -16,7 +16,7 @@ interface InputCreateMessage {
 }
 
 @Injectable()
-export class MessageService {
+export class ChatService {
 	public constructor(
 		@Inject("MONGO_REPOSITORY")
 		private readonly mongodb: MongoRepository,

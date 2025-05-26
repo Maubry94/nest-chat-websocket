@@ -13,7 +13,7 @@ import { z } from "zod";
 import { SessionService } from "@/modules/chat/services/session.service";
 import { TokenService } from "@/modules/auth/services/token";
 import { UserRepository } from "@/modules/user/repositories/user";
-import { MessageService } from "@/modules/chat/services/message.service";
+import { ChatService } from "@/modules/chat/services/chat.service";
 
 const chatMessageSchema = z.object({
 	receiverId: z.string(),
@@ -40,7 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		private readonly sessionService: SessionService,
 		private readonly tokenService: TokenService,
 		private readonly userRepository: UserRepository,
-		private readonly messageService: MessageService,
+		private readonly messageService: ChatService,
 	) {}
 
 	private static readonly NO_SOCKETS = 0;

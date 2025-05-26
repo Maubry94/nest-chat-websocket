@@ -1,21 +1,21 @@
 import { ConnectedUser } from "@/modules/auth/guards/must-be-connected.guard";
 import { UserRepository } from "@/modules/user/repositories/user";
-import { MessageService } from "@/modules/chat/services/message.service";
+import { ChatService } from "@/modules/chat/services/chat.service";
 import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
 import { User } from "@prisma/client";
 
 @Controller()
-export class MessageController {
+export class ChatController {
 	public constructor(
-		private readonly messageService: MessageService,
+		private readonly messageService: ChatService,
 		private readonly userRepository: UserRepository,
 	) {
 	}
 
-	public static readonly GET_MESSAGES_BY_USER_ID = "/messages/:receiverId";
+	public static readonly GET_CHAT_BY_USER_ID = "/messages/:receiverId";
 
-	@Get(MessageController.GET_MESSAGES_BY_USER_ID)
-	public async getMessagesByUserId(
+	@Get(ChatController.GET_CHAT_BY_USER_ID)
+	public async getChatByUserId(
 		@Param("receiverId") receiverId: string,
 		@ConnectedUser() user: User,
 	) {
@@ -29,8 +29,6 @@ export class MessageController {
 			receiverId: receiverId,
 			connectedUserId: user.id,
 		});
-
-		console.log("Conversation retrieved:", messages);
 
 		const formattedMessages = await Promise.all(
 			messages.map(
@@ -53,15 +51,11 @@ export class MessageController {
 
 		let conversationName = null;
 
-		console.log(firstMessage);
-
 		if (firstMessage) {
 			conversationName = user.username === firstMessage.sender
 				? firstMessage.receiver
 				: firstMessage.sender;
 		}
-
-		console.log("Formatted conversation:", formattedMessages);
 
 		return {
 			conversationName,

@@ -9,7 +9,7 @@ import { JwtModule } from "@nestjs/jwt";
 import envs from "@/envs";
 import { MustBeConnected } from "@/modules/auth/guards/must-be-connected.guard";
 import { RouteInfo } from "@nestjs/common/interfaces";
-import { MessageController } from "@/modules/chat/message.controller";
+import { ChatController } from "@/modules/chat/chat.controller";
 import { ConversationController } from "@/modules/conversation/conversation.controller";
 import { UserController } from "@/modules/user/user.controller";
 
@@ -25,7 +25,7 @@ const mustBeConnectedRoutes: RouteInfo[] = [
 		method: RequestMethod.GET,
 	},
 	{
-		path: MessageController.GET_MESSAGES_BY_USER_ID,
+		path: ChatController.GET_CHAT_BY_USER_ID,
 		method: RequestMethod.GET,
 	},
 	{
