@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 import { useSonner } from "@/composables/useSonner";
 import { useUserInformation } from "@/domains/user/composables/useUserInformation";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { TheSheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
 import { TheButton } from "@/components/ui/button";
 import TheIcon from "@/components/TheIcon.vue";
@@ -11,11 +11,18 @@ import { TheInput } from "@/components/ui/input";
 import UserAvatar from "@/domains/user/components/UserAvatar.vue";
 
 const router = useRouter();
-const { LOGIN_PAGE, PROFILE_PAGE, CHAT_PAGE } = routerPageName;
+const { LOGIN_PAGE, PROFILE_PAGE, CHAT_PAGE, HOME_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { deleteAccessToken, user } = useUserInformation();
 
 const search = ref("");
+
+const myConversationsFiltered = computed(
+	() => user.value?.myConversations.filter(
+		(myConversation) => myConversation.lastMessage.senderUsername.toLowerCase()
+			.includes(search.value.toLowerCase()),
+	),
+);
 
 function logout() {
 	try {
@@ -50,9 +57,12 @@ function logout() {
 			side="left"
 			class="w-full max-w-68 p-4 flex flex-col gap-6 bg-sidebar border-r border-sidebar-border"
 		>
-			<h1 class="mb-2 text-2xl font-bold text-sidebar-primary">
+			<RouterLink
+				:to="{ name: HOME_PAGE }"
+				class="mb-2 text-2xl font-bold text-sidebar-primary"
+			>
 				Nestflix & Chat
-			</h1>
+			</RouterLink>
 
 			<div>
 				<TheInput
@@ -65,16 +75,21 @@ function logout() {
 			<nav class="flex-1 mt-2 overflow-y-auto">
 				<ul class="space-y-1">
 					<li
-						v-for="myConversation in user?.myConversations"
+						v-for="myConversation in myConversationsFiltered"
 						:key="myConversation._id"
 					>
 						<SheetClose as-child>
 							<RouterLink
-								:to="{ name: CHAT_PAGE, params: { userId: myConversation.lastMessage.senderId } }"
+								:to="{
+									name: CHAT_PAGE,
+									params: {
+										userId: myConversation.conversationReceiverId
+									}
+								}"
 								class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 							>
 								<div class="font-medium">
-									{{ myConversation.lastMessage.content }}
+									{{ myConversation.conversationName }}
 								</div>
 
 								<div class="text-xs text-muted-foreground truncate">
@@ -92,7 +107,7 @@ function logout() {
 					</li>
 
 					<li
-						v-if="user?.myConversations.length === 0"
+						v-if="myConversationsFiltered?.length === 0"
 						class="px-3 py-2 text-sm text-muted-foreground"
 					>
 						Aucune conversation trouvée.
@@ -104,7 +119,7 @@ function logout() {
 				<div
 					class="mb-2 flex items-center gap-2 text-sm text-muted-foreground"
 				>
-					<UserAvatar />
+					<UserAvatar :profile-color="user?.profileColor" />
 
 					<span>{{ user?.username }}</span>
 				</div>

@@ -48,7 +48,7 @@ const senderProfileColor = computed(() => props.message.sender.profileColor);
 
 <template>
 	<div
-		class="mb-4 flex items-end gap-2"
+		class="mb-4 flex items-center gap-2"
 		:class="isSender ? 'flex-row-reverse justify-end' : 'justify-start'"
 	>
 		<UserAvatar :profile-color="senderProfileColor" />
@@ -71,6 +71,7 @@ const senderProfileColor = computed(() => props.message.sender.profileColor);
 			<div
 				v-if="isSender"
 				class="flex flex-col gap-1 text-xs text-muted-foreground mt-1"
+				:class="!isSender && 'items-start'"
 			>
 				<span
 					class="text-right"
