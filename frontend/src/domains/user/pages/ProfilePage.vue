@@ -91,10 +91,9 @@ async function handleUpdateProfileColor() {
 							Couleur de profil
 						</TheLabel>
 
-						<TheInput
-							id="profileColor"
+						<ColorPicker
 							v-model="inputProfileColor"
-							autocomplete="profile-color"
+							id="profileColor"
 						/>
 					</div>
 
