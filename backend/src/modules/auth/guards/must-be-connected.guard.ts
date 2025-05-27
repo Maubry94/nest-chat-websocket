@@ -3,6 +3,7 @@ import {
 	ExecutionContext,
 	ForbiddenException,
 	Injectable,
+	InternalServerErrorException,
 	NestMiddleware,
 	NotFoundException,
 	UnauthorizedException,
@@ -21,6 +22,11 @@ declare module "express" {
 export const ConnectedUser = createParamDecorator(
 	(_data: unknown, ctx: ExecutionContext) => {
 		const request = ctx.switchToHttp().getRequest<Request>();
+
+		if (!request.user) {
+			throw new InternalServerErrorException("error.whenRecoveringUserFromRequest");
+		}
+
 		return request.user;
 	},
 );
