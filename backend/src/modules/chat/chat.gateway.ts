@@ -24,6 +24,11 @@ const checkReadAtSchema = z.object({
 	receiverId: z.string(),
 });
 
+const checkIsTypingSchema = z.object({
+	receiverId: z.string(),
+	isTyping: z.boolean(),
+});
+
 declare module "socket.io" {
 	interface Socket {
 		connectedUserId: string;
@@ -126,6 +131,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				},
 			);
 		}
+	}
+
+	@SubscribeMessage("send-isTyping")
+	public async handleCheckIsTyping(
+		@MessageBody(new ZodValidationPipe(checkIsTypingSchema)) data: z.infer<typeof checkIsTypingSchema>,
+	) {
+		const { receiverId, isTyping } = data;
+
+		const receiver = await this.userRepository.findOneById(receiverId);
+
+		if (!receiver) {
+			console.error("Receiver not found");
+			return;
+		}
+
+		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
+
+		if (sockets.length === ChatGateway.NO_SOCKETS) {
+			return;
+		}
+
+		sockets.forEach(
+			(socketId) => {
+				this.server.to(socketId).emit("is-typing", isTyping);
+			},
+		);
 	}
 
 	@SubscribeMessage("send-message")

@@ -35,6 +35,8 @@ const {
 
 const ZERO = 0;
 
+const isTyping = ref(false);
+
 const {
 	conversation,
 } = useGetConversationList(
@@ -64,6 +66,13 @@ function scrollToBottom(
 		onScrollComplete?.();
 	});
 }
+
+chatSocket.on(
+	"is-typing",
+	(value) => {
+		isTyping.value = value;
+	},
+);
 
 chatSocket.on(
 	"messages-readed",
@@ -120,6 +129,16 @@ async function sendMessage(content: string) {
 	} catch {
 		sonnerError("Échec d'envoi du message.");
 	}
+}
+
+function handleIsTyping(value: boolean) {
+	chatSocket.emit(
+		"send-isTyping",
+		{
+			receiverId: params.value.userId,
+			isTyping: value,
+		},
+	);
 }
 
 onMounted(() => {
@@ -207,12 +226,15 @@ watch(
 
 		<div class="relative shrink-0 pb-4">
 			<IsTyping
-				v-if="receiver"
+				v-if="receiver && receiver.id !== user?.id && isTyping"
 				:users="[receiver.username]"
 				class="absolute -top-8 z-10"
 			/>
 
-			<MessageBox @send="sendMessage" />
+			<MessageBox
+				@send="sendMessage"
+				@is-typing="handleIsTyping"
+			/>
 		</div>
 	</section>
 </template>
