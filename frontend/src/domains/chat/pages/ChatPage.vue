@@ -49,13 +49,19 @@ const { user, fetchInformation } = useUserInformation();
 
 const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 
-function scrollToBottom() {
+function scrollToBottom(
+	onScrollComplete?: () => void,
+) {
 	void nextTick(() => {
 		const viewport = scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]");
 
-		if (viewport) {
-			viewport.scrollTop = viewport.scrollHeight;
+		if (!viewport) {
+			return;
 		}
+
+		viewport.scrollTop = viewport.scrollHeight;
+
+		onScrollComplete?.();
 	});
 }
 
@@ -116,19 +122,6 @@ async function sendMessage(content: string) {
 	}
 }
 
-watch(
-	() => conversation.value?.messages,
-	(messages) => {
-		if (messages?.length) {
-			scrollToBottom();
-		}
-	},
-	{
-		immediate: true,
-		deep: true,
-	},
-);
-
 onMounted(() => {
 	chatSocket.emit("check-readAt", {
 		receiverId: params.value.userId,
@@ -155,6 +148,25 @@ onMounted(() => {
 		});
 	});
 });
+
+watch(
+	() => conversation.value?.messages,
+	(messages) => {
+		if (messages) {
+			scrollToBottom(
+				() => {
+					chatSocket.emit("check-readAt", {
+						receiverId: params.value.userId,
+					});
+				},
+			);
+		}
+	},
+	{
+		immediate: true,
+		deep: true,
+	},
+);
 </script>
 
 <template>
