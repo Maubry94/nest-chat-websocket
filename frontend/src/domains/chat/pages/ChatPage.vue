@@ -129,7 +129,7 @@ async function sendMessage(content: string) {
 			readAt: null,
 		});
 
-		void playSendSound();
+		playSendSound();
 	} catch {
 		sonnerError("Échec d'envoi du message.");
 	}
@@ -170,7 +170,7 @@ onMounted(() => {
 			readAt: msg.readAt ?? null,
 		});
 
-		void playReceiveSound();
+		playReceiveSound();
 	});
 });
 

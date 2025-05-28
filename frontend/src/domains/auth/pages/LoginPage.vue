@@ -6,12 +6,14 @@ import { useUserInformation } from "@/domains/user/composables/useUserInformatio
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 import { HttpStatusCode } from "axios";
+import { usePlayLoginSound } from "../composable/useLoginSound";
 import TheButton from "@/components/ui/button/TheButton.vue";
 
 const router = useRouter();
 const { HOME_PAGE } = routerPageName;
 const { sonnerError, sonnerMessage } = useSonner();
 const { setAccessToken } = useUserInformation();
+const { playLoginSound } = usePlayLoginSound();
 
 async function googleSign() {
 	const provider = new GoogleAuthProvider();
@@ -36,6 +38,7 @@ async function googleSign() {
 							description: "Vous êtes maintenant connecté.",
 						},
 					);
+					playLoginSound();
 					void router.push({ name: HOME_PAGE });
 				}
 			});
