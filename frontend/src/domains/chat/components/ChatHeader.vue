@@ -1,32 +1,33 @@
 <script setup lang="ts">
-import DarkModeToggle from "@/components/DarkModeToggle.vue";
-import TheInput from "@/components/ui/input/TheInput.vue";
-import MobileNav from "@/domains/chat/components/MobileNav.vue";
-import TheIcon from "@/components/TheIcon.vue";
+import { routerPageName } from "@/router/routerPageName";
+import { useUserInformation } from "@/domains/user/composables/useUserInformation";
 import { computed, ref } from "vue";
 import { useSearchByUsername } from "../composables/useSearchByUsername";
-import { useUserInformation } from "@/domains/user/composables/useUserInformation";
-import { routerPageName } from "@/router/routerPageName";
+import MobileNav from "@/domains/chat/components/MobileNav.vue";
+import TheInput from "@/components/ui/input/TheInput.vue";
+import SoundToggle from "./SoundToggle.vue";
+import DarkModeToggle from "@/components/DarkModeToggle.vue";
+import TheIcon from "@/components/TheIcon.vue";
 
 interface Props {
 	chatName?: string;
 }
 
 const props = defineProps<Props>();
+
 const { CHAT_PAGE, PROFILE_PAGE } = routerPageName;
 
-const searchedUsername = ref("");
 const { user } = useUserInformation();
+const searchedUsername = ref("");
 
 const { users } = useSearchByUsername(
 	computed(() => searchedUsername.value || null),
 );
-
 const chatName = computed(() => props.chatName ?? "");
 </script>
 
 <template>
-	<header class="sticky top-0 z-10 px-6 py-4 bg-card border-b border-border shadow-sm">
+	<header class="sticky top-0 z-20 px-6 py-4 bg-card border-b border-border shadow-sm">
 		<div class="flex items-center justify-between gap-6">
 			<div class="flex items-center gap-4 shrink-0">
 				<MobileNav />
@@ -86,6 +87,8 @@ const chatName = computed(() => props.chatName ?? "");
 						</li>
 					</ul>
 				</div>
+
+				<SoundToggle />
 
 				<DarkModeToggle />
 			</div>

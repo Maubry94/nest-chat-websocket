@@ -14,10 +14,12 @@ import { chatSocket, chatSocketConfig } from "@/lib/socket";
 import { useGetUserById } from "@/domains/user/composables/useGetUserById";
 import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
+import { useChatSounds } from "../composables/useChatSounds";
 
 const router = useRouter();
 const { sonnerError } = useSonner();
 const { HOME_PAGE } = routerPageName;
+const { playSendSound, playReceiveSound } = useChatSounds();
 
 const params = useRouteParams({
 	userId: z.string(),
@@ -126,6 +128,8 @@ async function sendMessage(content: string) {
 			sendAt: new Date().toISOString(),
 			readAt: null,
 		});
+
+		void playSendSound();
 	} catch {
 		sonnerError("Échec d'envoi du message.");
 	}
@@ -165,6 +169,8 @@ onMounted(() => {
 			sendAt: msg.sendAt,
 			readAt: msg.readAt ?? null,
 		});
+
+		void playReceiveSound();
 	});
 });
 

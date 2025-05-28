@@ -7,6 +7,8 @@ import {
 	CheckCheck,
 	UserSearch,
 	Palette,
+	Volume2,
+	VolumeOff,
 } from "lucide-vue-next";
 
 const iconMapper = {
@@ -17,6 +19,8 @@ const iconMapper = {
 	checkCheck: CheckCheck,
 	userSearch: UserSearch,
 	palette: Palette,
+	soundOn: Volume2,
+	soundOff: VolumeOff,
 };
 
 const sizeMapper = {
