@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref, nextTick, watch } from "vue";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
@@ -47,32 +47,17 @@ const {
 
 const { user, fetchInformation } = useUserInformation();
 
-onMounted(() => {
-	chatSocket.emit("check-readAt", {
-		receiverId: params.value.userId,
-	});
+const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 
-	chatSocket.on("receive-message", (msg) => {
-		if (!conversation.value) {
-			return;
+function scrollToBottom() {
+	void nextTick(() => {
+		const viewport = scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]");
+
+		if (viewport) {
+			viewport.scrollTop = viewport.scrollHeight;
 		}
-
-		if (conversation.value.messages.length === ZERO) {
-			void fetchInformation();
-		}
-
-		conversation.value.messages.push({
-			_id: msg._id,
-			sender: {
-				username: msg.sender.username,
-				profileColor: msg.sender.profileColor,
-			},
-			content: msg.message,
-			sendAt: msg.sendAt,
-			readAt: msg.readAt ?? null,
-		});
 	});
-});
+}
 
 chatSocket.on(
 	"messages-readed",
@@ -130,6 +115,46 @@ async function sendMessage(content: string) {
 		sonnerError("Échec d'envoi du message.");
 	}
 }
+
+watch(
+	() => conversation.value?.messages,
+	(messages) => {
+		if (messages?.length) {
+			scrollToBottom();
+		}
+	},
+	{
+		immediate: true,
+		deep: true,
+	},
+);
+
+onMounted(() => {
+	chatSocket.emit("check-readAt", {
+		receiverId: params.value.userId,
+	});
+
+	chatSocket.on("receive-message", (msg) => {
+		if (!conversation.value) {
+			return;
+		}
+
+		if (conversation.value.messages.length === ZERO) {
+			void fetchInformation();
+		}
+
+		conversation.value.messages.push({
+			_id: msg._id,
+			sender: {
+				username: msg.sender.username,
+				profileColor: msg.sender.profileColor,
+			},
+			content: msg.message,
+			sendAt: msg.sendAt,
+			readAt: msg.readAt ?? null,
+		});
+	});
+});
 </script>
 
 <template>
@@ -139,32 +164,34 @@ async function sendMessage(content: string) {
 			:chat-name="conversation.conversationName ?? receiver?.username"
 		/>
 
-		<div
+		<ScrollArea
+			ref="scrollAreaRef"
 			v-if="conversation"
-			class="flex-1"
+			:class="[
+				'flex-1 px-4 overflow-y-auto',
+				{ 'no-messages': conversation.messages.length === 0 }
+			]"
 		>
-			<ScrollArea
+			<div
 				v-if="conversation.messages.length > 0"
-				class="h-full px-4 overflow-y-auto"
+				class="space-y-2"
 			>
-				<div class="space-y-2">
-					<TheMessage
-						v-for="(message) in conversation.messages"
-						:key="message._id"
-						:message="message"
-					/>
-				</div>
-			</ScrollArea>
+				<TheMessage
+					v-for="(message, index) in conversation.messages"
+					:key="index"
+					:message="message"
+				/>
+			</div>
 
 			<div
 				v-else
-				class="h-full flex flex-col items-center justify-center flex-1 px-4"
+				class="flex flex-col items-center justify-center gap-2"
 			>
-				<span class="text-lg text-muted-foreground">
+				<p class="text-lg text-text-secondary">
 					Aucun message pour le moment.
-				</span>
+				</p>
 			</div>
-		</div>
+		</ScrollArea>
 
 		<div class="relative shrink-0 pb-4">
 			<IsTyping
@@ -177,3 +204,17 @@ async function sendMessage(content: string) {
 		</div>
 	</section>
 </template>
+
+<style scoped>
+:deep(.no-messages [data-reka-scroll-area-viewport]) {
+  min-height: 100%;
+  display: flex;
+}
+
+:deep(.no-messages [data-reka-scroll-area-viewport] > div) {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
