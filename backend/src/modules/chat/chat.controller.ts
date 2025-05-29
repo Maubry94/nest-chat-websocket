@@ -32,9 +32,27 @@ export class ChatController {
 
 		const formattedMessages = await Promise.all(
 			messages.map(
-				async({ _id, senderId, content, readAt, sendAt }) => {
-					const sender = await this.userRepository.findOneById(senderId);
-					const receiver = await this.userRepository.findOneById(receiverId);
+				async(
+					{
+						_id,
+						senderId: messageSenderId,
+						receiverId: messageReceiverId,
+						content,
+						readAt,
+						sendAt,
+					},
+				) => {
+					const [sender, receiver] = await Promise.all(
+						[
+							this.userRepository.findOneById(messageSenderId),
+							this.userRepository.findOneById(messageReceiverId),
+						],
+					);
+
+					if (!sender || !receiver) {
+						throw new NotFoundException("user.notFound");
+					}
+
 					return {
 						_id,
 						sender: {
@@ -50,18 +68,8 @@ export class ChatController {
 			),
 		);
 
-		const [firstMessage] = formattedMessages;
-
-		let conversationName = null;
-
-		if (firstMessage) {
-			conversationName = user.username === firstMessage.sender.username
-				? firstMessage.receiver
-				: firstMessage.sender.username;
-		}
-
 		return {
-			conversationName,
+			conversationName: receiver.username,
 			messages: formattedMessages,
 		};
 	}

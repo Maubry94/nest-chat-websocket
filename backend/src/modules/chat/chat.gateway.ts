@@ -51,7 +51,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	private static readonly NO_SOCKETS = 0;
 
 	@WebSocketServer()
-	private server: Server;
+	private server!: Server;
 
 	public async handleDisconnect(@ConnectedSocket() socket: Socket) {
 		await this.sessionService.removeSessionBySocket(socket.id);
@@ -193,6 +193,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				this.server.to(socketId).emit("receive-message", {
 					_id: createdMessage.insertedId,
 					sender: {
+						id: senderId,
 						username: sender.username,
 						profileColor: sender.profileColor,
 					},

@@ -6,16 +6,19 @@ import { SessionService } from "@/modules/chat/services/session.service";
 import { Module, Provider } from "@nestjs/common";
 import { AuthModule } from "../auth/auth.module";
 import { RedisModule } from "@/providers/redis/redis.module";
+import { ConversationService } from "./services/conversation.service";
 
 const providers: Provider[] = [
 	ChatGateway,
 	ChatService,
 	SessionService,
+	ConversationService,
 ];
 
 @Module({
 	imports: [MongoModule, AuthModule, RedisModule],
 	controllers: [ChatController],
 	providers: [...providers],
+	exports: [...providers],
 })
 export class ChatModule {}

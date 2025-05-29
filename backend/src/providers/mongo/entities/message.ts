@@ -3,5 +3,5 @@ export interface Message {
 	receiverId: string;
 	content: string;
 	sendAt: Date;
-	readAt: Date;
+	readAt: Date | null;
 }

@@ -2,7 +2,6 @@ import type { User } from "@/schemas/userSchema";
 import { useLocalStorageItem } from "@/composables/useLocalStorageItem";
 import { HttpStatusCode } from "axios";
 import { computed, ref, watch } from "vue";
-import type { MyConversation } from "@/lib/axios/types/myConversationsSchema";
 
 const accessTokenLocalStorageKey = "accessToken";
 const user = ref<User | null>(null);
@@ -23,17 +22,9 @@ export function useUserInformation() {
 
 	async function fetchInformation() {
 		try {
-			const [myConversationsResponse, userResponse] = await Promise.all([
-				window.backendClient.get<MyConversation[]>("/get-my-conversations"),
-				window.backendClient.get<User>("/user"),
-			]);
-
-			if (
-				myConversationsResponse.status === HttpStatusCode.Ok
-				&& userResponse.status === HttpStatusCode.Ok
-			) {
+			const userResponse = await window.backendClient.get<User>("/user");
+			if (userResponse.status === HttpStatusCode.Ok) {
 				user.value = userResponse.data;
-				user.value.myConversations = myConversationsResponse.data;
 			} else {
 				user.value = null;
 				accessTokenItem.value = null;
@@ -64,9 +55,3 @@ watch(
 		}
 	},
 );
-
-void Promise
-	.resolve()
-	.then(
-		fetchInformation,
-	);

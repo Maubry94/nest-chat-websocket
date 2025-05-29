@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
-import { computed, onMounted, ref, nextTick, watch } from "vue";
+import { computed, onMounted, ref, nextTick, watch, onUnmounted } from "vue";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
@@ -20,6 +20,9 @@ const router = useRouter();
 const { sonnerError } = useSonner();
 const { HOME_PAGE } = routerPageName;
 const { playSendSound, playReceiveSound } = useChatSounds();
+const { user, fetchInformation } = useUserInformation();
+const isTyping = ref(false);
+const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 
 const params = useRouteParams({
 	userId: z.string(),
@@ -35,10 +38,6 @@ const {
 	},
 );
 
-const ZERO = 0;
-
-const isTyping = ref(false);
-
 const {
 	conversation,
 } = useGetConversationList(
@@ -48,10 +47,6 @@ const {
 		void router.push({ name: HOME_PAGE });
 	},
 );
-
-const { user, fetchInformation } = useUserInformation();
-
-const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 
 function scrollToBottom(
 	onScrollComplete?: () => void,
@@ -90,11 +85,13 @@ chatSocket.on(
 		if (message) {
 			message.readAt = response.readAt;
 		}
+
+		void fetchInformation();
 	},
 );
 
 async function sendMessage(content: string) {
-	if (!user.value) {
+	if (!user.value || !receiver.value) {
 		sonnerError("Vous devez être connecté pour envoyer un message.");
 		return;
 	}
@@ -114,10 +111,6 @@ async function sendMessage(content: string) {
 				},
 			);
 
-		if (conversation.value?.messages.length === ZERO) {
-			void fetchInformation();
-		}
-
 		conversation.value?.messages.push({
 			_id: serverMessageId,
 			sender: {
@@ -128,6 +121,8 @@ async function sendMessage(content: string) {
 			sendAt: new Date().toISOString(),
 			readAt: null,
 		});
+
+		void fetchInformation();
 
 		playSendSound();
 	} catch {
@@ -145,20 +140,24 @@ function handleIsTyping(value: boolean) {
 	);
 }
 
-onMounted(() => {
-	chatSocket.emit("check-readAt", {
-		receiverId: params.value.userId,
-	});
+interface ReceivedMessage {
+	_id: string;
+	sender: {
+		id: string;
+		username: string;
+		profileColor: string;
+	};
+	message: string;
+	sendAt: string;
+	readAt?: string | null;
+}
 
-	chatSocket.on("receive-message", (msg) => {
-		if (!conversation.value) {
-			return;
-		}
+function handleReceiveMessage(msg: ReceivedMessage) {
+	if (!conversation.value || !user.value || !receiver.value) {
+		return;
+	}
 
-		if (conversation.value.messages.length === ZERO) {
-			void fetchInformation();
-		}
-
+	if (msg.sender.id === params.value.userId) {
 		conversation.value.messages.push({
 			_id: msg._id,
 			sender: {
@@ -169,9 +168,23 @@ onMounted(() => {
 			sendAt: msg.sendAt,
 			readAt: msg.readAt ?? null,
 		});
+	}
 
-		playReceiveSound();
+	void fetchInformation();
+
+	playReceiveSound();
+}
+
+onMounted(() => {
+	chatSocket.emit("check-readAt", {
+		receiverId: params.value.userId,
 	});
+
+	chatSocket.on("receive-message", handleReceiveMessage);
+});
+
+onUnmounted(() => {
+	chatSocket.off("receive-message", handleReceiveMessage);
 });
 
 watch(
@@ -198,7 +211,7 @@ watch(
 	<section class="h-full flex flex-col bg-background">
 		<ChatHeader
 			v-if="conversation"
-			:chat-name="conversation.conversationName ?? receiver?.username"
+			:chat-name="conversation.conversationName"
 		/>
 
 		<ScrollArea

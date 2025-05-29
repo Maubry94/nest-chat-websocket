@@ -17,9 +17,9 @@ const { deleteAccessToken, user } = useUserInformation();
 
 const search = ref("");
 
-const myConversationsFiltered = computed(
-	() => user.value?.myConversations.filter(
-		(myConversation) => myConversation.lastMessage.senderUsername.toLowerCase()
+const userConversationsFiltered = computed(
+	() => user.value?.conversations.filter(
+		(conversation) => conversation.lastMessage.senderUsername.toLowerCase()
 			.includes(search.value.toLowerCase()),
 	),
 );
@@ -75,39 +75,37 @@ function logout() {
 			<nav class="flex-1 mt-2 overflow-y-auto">
 				<ul class="space-y-1">
 					<li
-						v-for="myConversation in myConversationsFiltered"
-						:key="myConversation._id"
+						v-for="userConversation in userConversationsFiltered"
+						:key="userConversation._id"
 					>
 						<SheetClose as-child>
 							<RouterLink
 								:to="{
 									name: CHAT_PAGE,
 									params: {
-										userId: myConversation.conversationReceiverId
+										userId: userConversation.conversationReceiverId
 									}
 								}"
 								class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"
 							>
 								<div class="font-medium">
-									{{ myConversation.conversationName }}
+									{{ userConversation.conversationName }}
 								</div>
 
 								<div class="text-xs text-muted-foreground truncate">
 									<span class="font-semibold">
 										{{
-											myConversation.isConnectedSender ?
-												"(Vous)"
-												: myConversation.lastMessage.senderUsername
+											userConversation.lastMessage.senderUsername
 										}} :
 									</span>
-									{{ myConversation.lastMessage.content }}
+									{{ userConversation.lastMessage.content }}
 								</div>
 							</RouterLink>
 						</SheetClose>
 					</li>
 
 					<li
-						v-if="myConversationsFiltered?.length === 0"
+						v-if="userConversationsFiltered?.length === 0"
 						class="px-3 py-2 text-sm text-muted-foreground"
 					>
 						Aucune conversation trouvée.

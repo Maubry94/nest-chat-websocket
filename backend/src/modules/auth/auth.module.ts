@@ -10,7 +10,6 @@ import envs from "@/envs";
 import { MustBeConnected } from "@/modules/auth/guards/must-be-connected.guard";
 import { RouteInfo } from "@nestjs/common/interfaces";
 import { ChatController } from "@/modules/chat/chat.controller";
-import { ConversationController } from "@/modules/conversation/conversation.controller";
 import { UserController } from "@/modules/user/user.controller";
 
 const providers: Provider[] = [
@@ -26,10 +25,6 @@ const mustBeConnectedRoutes: RouteInfo[] = [
 	},
 	{
 		path: ChatController.GET_CHAT_BY_USER_ID,
-		method: RequestMethod.GET,
-	},
-	{
-		path: ConversationController.GET_MY_CONVERSATIONS,
 		method: RequestMethod.GET,
 	},
 	{

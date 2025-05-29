@@ -1,4 +1,4 @@
-import { myConversationSchema } from "@/lib/axios/types/myConversationsSchema";
+import { userConversationSchema } from "@/lib/axios/types/userConversationSchema";
 import { z } from "zod";
 
 export const userSchema = z.object({
@@ -6,7 +6,7 @@ export const userSchema = z.object({
 	username: z.string(),
 	email: z.string().email(),
 	profileColor: z.string(),
-	myConversations: z.array(myConversationSchema),
+	conversations: z.array(userConversationSchema),
 });
 
 export type User = z.infer<typeof userSchema>;

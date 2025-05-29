@@ -5,11 +5,13 @@ import { UserService } from "@/modules/user/services/user.service";
 import { Body, Controller, Get, Param, Patch, Query } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { ZodValidationPipe } from "nestjs-zod";
+import { ConversationService } from "../chat/services/conversation.service";
 
 @Controller()
 export class UserController {
 	public constructor(
 		private readonly userService: UserService,
+		private readonly conversationService: ConversationService,
 	) {}
 
 	public static readonly SEARCH_BY_USERNAME = "/users";
@@ -26,8 +28,11 @@ export class UserController {
 	}
 
 	@Get(UserController.GET_USER)
-	public getUser(@ConnectedUser() user: User) {
-		return user;
+	public async getUser(@ConnectedUser() user: User) {
+		return {
+			...user,
+			conversations: await this.conversationService.getUserConversations(user),
+		};
 	}
 
 	@Get(UserController.GET_USER_BY_ID)

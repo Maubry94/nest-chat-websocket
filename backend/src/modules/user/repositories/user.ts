@@ -12,14 +12,16 @@ export class UserRepository {
 	public constructor(private readonly prisma: PrismaService) {}
 
 	public findOneByEmail(email: string) {
-		return this.prisma.user.findUnique({
+		return this.prisma.user.findFirst({
 			where: { email },
 		});
 	}
 
 	public findOneById(id: string) {
-		return this.prisma.user.findUnique({
-			where: { id },
+		return this.prisma.user.findFirst({
+			where: {
+				id: id,
+			},
 		});
 	}
 

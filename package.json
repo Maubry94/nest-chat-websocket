@@ -28,6 +28,7 @@
       "dev:nestjs": "npm -w @backend/nest-chat-websocket run dev",
       "dev:vue": "npm -w @frontend/nest-chat-websocket run dev",
       "docker:prisma:migrate": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:migration",
+      "docker:prisma:generate": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:generate",
       "docker:prisma:studio": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:studio"
     },
     "dependencies": {},
