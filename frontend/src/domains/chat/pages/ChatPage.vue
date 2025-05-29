@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
-import { computed, onMounted, ref, nextTick, watch, onUnmounted } from "vue";
+import { computed, onMounted, ref, watch, onUnmounted } from "vue";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
@@ -15,6 +15,7 @@ import { useGetUserById } from "@/domains/user/composables/useGetUserById";
 import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 import { useChatSounds } from "../composables/useChatSounds";
+import { scrollToBottom } from "@/lib/utils";
 
 const router = useRouter();
 const { sonnerError } = useSonner();
@@ -60,22 +61,6 @@ const {
 	},
 );
 
-function scrollToBottom(
-	onScrollComplete?: () => void,
-) {
-	void nextTick(() => {
-		const viewport = scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]");
-
-		if (!viewport) {
-			return;
-		}
-
-		viewport.scrollTop = viewport.scrollHeight;
-
-		onScrollComplete?.();
-	});
-}
-
 chatSocket.on(
 	"is-typing",
 	(value: boolean) => {
@@ -85,18 +70,16 @@ chatSocket.on(
 
 chatSocket.on(
 	"messages-readed",
-	(
-		response: {
-			messageId: string;
-			readAt: string;
-		},
-	) => {
+	(response: {
+		messageId: string;
+		readAt: string;
+	}) => {
 		if (!conversation.value) {
 			return;
 		}
 
 		const message = conversation.value.messages.find(
-			(msg) => msg._id === response.messageId,
+			(message) => message._id === response.messageId,
 		);
 
 		if (message) {
@@ -193,6 +176,7 @@ watch(
 	(messages) => {
 		if (messages) {
 			scrollToBottom(
+				scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]"),
 				async() => {
 					try {
 						const response: { readAtChecked: boolean } = await chatSocket

@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { nextTick } from "vue";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -19,6 +20,20 @@ export function getHoursAndMinutesFromDate(date: Date) {
 	return date.toLocaleTimeString("fr-FR", {
 		hour: "2-digit",
 		minute: "2-digit",
+	});
+}
+
+export function scrollToBottom(
+	element: HTMLElement | null | undefined,
+	onScrollComplete?: () => void,
+): void {
+	if (!element) {
+		return;
+	}
+
+	void nextTick(() => {
+		element.scrollTop = element.scrollHeight;
+		onScrollComplete?.();
 	});
 }
 
