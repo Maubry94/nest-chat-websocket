@@ -7,17 +7,12 @@
 ### Prérequis
 
 - [Docker](https://www.docker.com/) et [Docker Compose](https://docs.docker.com/compose/) installés
-- Fichier `firebase.credential.json` créé à la racine du backend.
+- Fichier `firebase.credential.json` créé à la racine du backend. (Donné dans le .zip sur myges [ici](https://myges.fr/common/project-group-gestion/425135). *(si il n'y ai pas déjà)*
 
 ### Étapes
 
 ```bash
-# 1. Cloner le dépôt
-git clone git@github.com:Maubry94/nest-chat-websocket.git
-```
-
-```bash
-# 2. Lancer tous les services
+# 1. Lancer tous les services
 docker-compose up --build
 ```
 
