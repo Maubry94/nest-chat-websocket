@@ -78,14 +78,19 @@ function scrollToBottom(
 
 chatSocket.on(
 	"is-typing",
-	(value) => {
+	(value: boolean) => {
 		isTyping.value = value;
 	},
 );
 
 chatSocket.on(
 	"messages-readed",
-	(response) => {
+	(
+		response: {
+			messageId: string;
+			readAt: string;
+		},
+	) => {
 		if (!conversation.value) {
 			return;
 		}
@@ -152,21 +157,21 @@ function handleIsTyping(value: boolean) {
 	);
 }
 
-function handleReceiveMessage(msg: ReceivedMessage) {
+function handleReceiveMessage(message: ReceivedMessage) {
 	if (!conversation.value || !user.value || !receiver.value) {
 		return;
 	}
 
-	if (msg.sender.id === params.value.userId) {
+	if (message.sender.id === params.value.userId) {
 		conversation.value.messages.push({
-			_id: msg._id,
+			_id: message._id,
 			sender: {
-				username: msg.sender.username,
-				profileColor: msg.sender.profileColor,
+				username: message.sender.username,
+				profileColor: message.sender.profileColor,
 			},
-			content: msg.message,
-			sendAt: msg.sendAt,
-			readAt: msg.readAt ?? null,
+			content: message.message,
+			sendAt: message.sendAt,
+			readAt: message.readAt ?? null,
 		});
 	}
 
