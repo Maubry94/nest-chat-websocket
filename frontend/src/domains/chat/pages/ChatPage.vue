@@ -24,6 +24,18 @@ const { user, fetchInformation } = useUserInformation();
 const isTyping = ref(false);
 const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 
+interface ReceivedMessage {
+	_id: string;
+	sender: {
+		id: string;
+		username: string;
+		profileColor: string;
+	};
+	message: string;
+	sendAt: string;
+	readAt?: string | null;
+}
+
 const params = useRouteParams({
 	userId: z.string(),
 });
@@ -101,7 +113,7 @@ async function sendMessage(content: string) {
 	}
 
 	try {
-		const serverMessageId = await chatSocket
+		const serverMessageId: string = await chatSocket
 			.timeout(chatSocketConfig.timeout)
 			.emitWithAck(
 				"send-message",
@@ -140,18 +152,6 @@ function handleIsTyping(value: boolean) {
 	);
 }
 
-interface ReceivedMessage {
-	_id: string;
-	sender: {
-		id: string;
-		username: string;
-		profileColor: string;
-	};
-	message: string;
-	sendAt: string;
-	readAt?: string | null;
-}
-
 function handleReceiveMessage(msg: ReceivedMessage) {
 	if (!conversation.value || !user.value || !receiver.value) {
 		return;
@@ -176,10 +176,6 @@ function handleReceiveMessage(msg: ReceivedMessage) {
 }
 
 onMounted(() => {
-	chatSocket.emit("check-readAt", {
-		receiverId: params.value.userId,
-	});
-
 	chatSocket.on("receive-message", handleReceiveMessage);
 });
 
@@ -192,10 +188,29 @@ watch(
 	(messages) => {
 		if (messages) {
 			scrollToBottom(
-				() => {
-					chatSocket.emit("check-readAt", {
-						receiverId: params.value.userId,
-					});
+				async() => {
+					try {
+						const response: { readAtChecked: boolean } = await chatSocket
+							.timeout(chatSocketConfig.timeout)
+							.emitWithAck(
+								"check-readAt",
+								{
+									receiverId: params.value.userId,
+								},
+							);
+
+						if (response.readAtChecked) {
+							const currentUserConversation = user.value?.conversations.find(
+								(conv) => conv.conversationReceiverId === params.value.userId,
+							);
+
+							if (currentUserConversation) {
+								currentUserConversation.lastMessage.isReaded = true;
+							}
+						}
+					} catch {
+						// Error intentionally ignored
+					}
 				},
 			);
 		}

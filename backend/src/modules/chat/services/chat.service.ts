@@ -1,3 +1,4 @@
+import { UserService } from "@/modules/user/services/user.service";
 import { Message } from "@/providers/mongo/entities/message";
 import { MongoRepository } from "@/providers/mongo/mongo.module";
 import { Inject, Injectable } from "@nestjs/common";
@@ -5,14 +6,14 @@ import { User } from "@prisma/client";
 import { WithId } from "mongodb";
 
 interface InputGetMessages {
-	receiverId: User["id"];
-	connectedUserId: User["id"];
+	receiver: User;
+	sender: User;
 }
 
 interface InputCreateMessage {
-	senderId: User["id"];
-	receiverId: User["id"];
-	message: string;
+	sender: User;
+	receiver: User;
+	message: Message["content"];
 }
 
 @Injectable()
@@ -20,12 +21,13 @@ export class ChatService {
 	public constructor(
 		@Inject("MONGO_REPOSITORY")
 		private readonly mongodb: MongoRepository,
+		private readonly userService: UserService,
 	) {}
 
 	public async createMessage(params: InputCreateMessage) {
 		return this.mongodb.messageCollection.insertOne({
-			senderId: params.senderId,
-			receiverId: params.receiverId,
+			senderId: params.sender.id,
+			receiverId: params.receiver.id,
 			content: params.message,
 			sendAt: new Date(),
 			readAt: null,
@@ -45,8 +47,8 @@ export class ChatService {
 		);
 	}
 
-	public getMessages(params: InputGetMessages) {
-		const { receiverId, connectedUserId } = params;
+	public async getMessages(params: InputGetMessages) {
+		const { receiver, sender } = params;
 
 		return this.mongodb.messageCollection
 			.find({
@@ -54,20 +56,20 @@ export class ChatService {
 					{
 						$and: [
 							{
-								senderId: connectedUserId,
+								senderId: sender.id,
 							},
 							{
-								receiverId,
+								receiverId: receiver.id,
 							},
 						],
 					},
 					{
 						$and: [
 							{
-								senderId: receiverId,
+								senderId: receiver.id,
 							},
 							{
-								receiverId: connectedUserId,
+								receiverId: sender.id,
 							},
 						],
 					},

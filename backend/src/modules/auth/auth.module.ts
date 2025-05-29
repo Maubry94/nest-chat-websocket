@@ -3,7 +3,7 @@ import { PrismaModule } from "@/providers/prisma/prisma.module";
 import { FirebaseModule } from "@/providers/firebase/firebase.module";
 import { UserRepository } from "@/modules/user/repositories/user";
 import { TokenService } from "@/modules/auth/services/token";
-import { FindOrCreateUserUsecase } from "@/modules/user/services/usecases/findOrCreateUser";
+import { FindOrCreateUserUsecase } from "@/modules/user/services/usecases/find-or-create-user";
 import { AuthController } from "@/modules/auth/auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 import envs from "@/envs";

@@ -12,8 +12,9 @@ import { ZodValidationPipe } from "../../common/zod-validation.pipe";
 import { z } from "zod";
 import { SessionService } from "@/modules/chat/services/session.service";
 import { TokenService } from "@/modules/auth/services/token";
-import { UserRepository } from "@/modules/user/repositories/user";
 import { ChatService } from "@/modules/chat/services/chat.service";
+import { UserService } from "../user/services/user.service";
+import { User } from "@prisma/client";
 
 const chatMessageSchema = z.object({
 	receiverId: z.string(),
@@ -31,7 +32,7 @@ const checkIsTypingSchema = z.object({
 
 declare module "socket.io" {
 	interface Socket {
-		connectedUserId: string;
+		user: User;
 	}
 }
 
@@ -44,11 +45,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	public constructor(
 		private readonly sessionService: SessionService,
 		private readonly tokenService: TokenService,
-		private readonly userRepository: UserRepository,
+		private readonly userService: UserService,
 		private readonly messageService: ChatService,
 	) {}
 
-	private static readonly NO_SOCKETS = 0;
+	private static readonly ZERO = 0;
 
 	@WebSocketServer()
 	private server!: Server;
@@ -74,16 +75,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		const { userId } = verifiedToken;
 
-		const user = await this.userRepository.findOneById(userId);
+		try {
+			const user = await this.userService.getUserById(userId);
 
-		if (!user) {
+			socket.user = user;
+			await this.sessionService.createSession(user, socket.id);
+		} catch (error) {
 			socket.disconnect();
-			throw new Error("user.notfound");
+			throw error;
 		}
-
-		socket.connectedUserId = userId;
-
-		await this.sessionService.createSession(userId, socket.id);
 	}
 
 	@SubscribeMessage("check-readAt")
@@ -93,27 +93,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	) {
 		const { receiverId } = data;
 
-		const receiver = await this.userRepository.findOneById(receiverId);
+		const receiver = await this.userService.getUserById(receiverId);
 
-		if (!receiver) {
-			console.error("Receiver not found");
-			return;
-		}
+		const sockets = await this.sessionService.getSocketsIdsByUser(receiver.id);
 
-		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
-
-		if (sockets.length === ChatGateway.NO_SOCKETS) {
+		if (sockets.length === ChatGateway.ZERO) {
 			return;
 		}
 
 		const unreadReceiverMessages = await this.messageService.getMessages({
-			receiverId,
-			connectedUserId: socket.connectedUserId,
+			receiver,
+			sender: socket.user,
 		}).then(
 			(messages) => messages.filter(
 				({ senderId, readAt }) => senderId === receiverId && readAt === null,
 			),
 		);
+
 		for (const message of unreadReceiverMessages) {
 			const now = new Date();
 
@@ -131,6 +127,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				},
 			);
 		}
+
+		return {
+			readAtChecked: unreadReceiverMessages.length > ChatGateway.ZERO,
+		};
 	}
 
 	@SubscribeMessage("send-isTyping")
@@ -139,18 +139,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	) {
 		const { receiverId, isTyping } = data;
 
-		const receiver = await this.userRepository.findOneById(receiverId);
+		const receiver = await this.userService.getUserById(receiverId);
 
-		if (!receiver) {
-			console.error("Receiver not found");
-			return;
-		}
-
-		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
-
-		if (sockets.length === ChatGateway.NO_SOCKETS) {
-			return;
-		}
+		const sockets = await this.sessionService.getSocketsIdsByUser(receiver.id);
 
 		sockets.forEach(
 			(socketId) => {
@@ -165,43 +156,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		@ConnectedSocket() socket: Socket,
 	) {
 		const { receiverId, message } = data;
-		const senderId = socket.connectedUserId;
 
-		const receiver = await this.userRepository.findOneById(receiverId);
+		const receiver = await this.userService.getUserById(receiverId);
 
-		if (!receiver) {
-			console.error("Receiver not found");
-			return;
-		}
-
-		const sockets = await this.sessionService.getSocketsIdsByUser(receiverId);
-		const sender = await this.userRepository.findOneById(senderId);
-
-		if (!sender) {
-			console.error("Receiver not found");
-			return;
-		}
+		const socketIds = await this.sessionService.getSocketsIdsByUser(receiver.id);
 
 		const createdMessage = await this.messageService.createMessage({
-			senderId,
-			receiverId,
+			sender: socket.user,
+			receiver,
 			message,
 		});
 
-		if (sockets.length > ChatGateway.NO_SOCKETS) {
-			sockets.forEach((socketId) => {
-				this.server.to(socketId).emit("receive-message", {
-					_id: createdMessage.insertedId,
-					sender: {
-						id: senderId,
-						username: sender.username,
-						profileColor: sender.profileColor,
+		socketIds.forEach(
+			(socketId) => {
+				this.server.to(socketId).emit(
+					"receive-message",
+					{
+						_id: createdMessage.insertedId,
+						sender: socket.user,
+						message,
+						sendAt: new Date().toISOString(),
 					},
-					message,
-					sendAt: new Date().toISOString(),
-				});
-			});
-		}
+				);
+			},
+		);
 
 		return createdMessage.insertedId;
 	}

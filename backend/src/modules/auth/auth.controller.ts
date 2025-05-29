@@ -1,6 +1,6 @@
 import { LoginDto } from "@/modules/auth/schemas/login";
 import { TokenService } from "@/modules/auth/services/token";
-import { FindOrCreateUserUsecase } from "@/modules/user/services/usecases/findOrCreateUser";
+import { FindOrCreateUserUsecase } from "@/modules/user/services/usecases/find-or-create-user";
 import { Body, Controller, Post } from "@nestjs/common";
 
 @Controller()

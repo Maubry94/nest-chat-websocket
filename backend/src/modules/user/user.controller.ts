@@ -29,9 +29,30 @@ export class UserController {
 
 	@Get(UserController.GET_USER)
 	public async getUser(@ConnectedUser() user: User) {
+		const conversationFromMessages = await this.conversationService.getConversations(user);
+
+		const conversationFromMessagesFormatted = await Promise.all(
+			conversationFromMessages.map(
+				async(conversation) => {
+					const sender = await this.userService.getUserById(conversation.lastMessage.senderId);
+					const receiver = await this.userService.getUserById(conversation.lastMessage.receiverId);
+
+					return {
+						...conversation,
+						conversationName: sender.id === user.id ? receiver.username : sender.username,
+						conversationReceiverId: sender.id === user.id ? receiver.id : sender.id,
+						lastMessage: {
+							...conversation.lastMessage,
+							senderUsername: sender.id === user.id ? "(Vous)" : sender.username,
+							isReaded: !!conversation.lastMessage.readAt,
+						},
+					};
+				},
+			),
+		);
 		return {
 			...user,
-			conversations: await this.conversationService.getUserConversations(user),
+			conversations: conversationFromMessagesFormatted,
 		};
 	}
 

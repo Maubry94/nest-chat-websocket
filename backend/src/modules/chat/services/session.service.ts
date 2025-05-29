@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { User } from "@prisma/client";
 import Redis from "ioredis";
 
 @Injectable()
@@ -16,9 +17,9 @@ export class SessionService {
 		return `socket_user:${socketId}`;
 	}
 
-	public async createSession(userId: string, socketId: string): Promise<void> {
-		await this.redis.sadd(this.getUserSessionsKey(userId), socketId);
-		await this.redis.set(this.getSocketUserKey(socketId), userId);
+	public async createSession(user: User, socketId: string): Promise<void> {
+		await this.redis.sadd(this.getUserSessionsKey(user.id), socketId);
+		await this.redis.set(this.getSocketUserKey(socketId), user.id);
 	}
 
 	public async removeSessionBySocket(socketId: string): Promise<void> {

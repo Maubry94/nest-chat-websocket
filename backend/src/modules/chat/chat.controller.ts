@@ -1,14 +1,14 @@
 import { ConnectedUser } from "@/modules/auth/guards/must-be-connected.guard";
-import { UserRepository } from "@/modules/user/repositories/user";
 import { ChatService } from "@/modules/chat/services/chat.service";
-import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import { User } from "@prisma/client";
+import { UserService } from "../user/services/user.service";
 
 @Controller()
 export class ChatController {
 	public constructor(
 		private readonly messageService: ChatService,
-		private readonly userRepository: UserRepository,
+		private readonly userService: UserService,
 	) {
 	}
 
@@ -17,17 +17,13 @@ export class ChatController {
 	@Get(ChatController.GET_CHAT_BY_USER_ID)
 	public async getChatByUserId(
 		@Param("receiverId") receiverId: string,
-		@ConnectedUser() user: User,
+		@ConnectedUser() connectedUser: User,
 	) {
-		const receiver = await this.userRepository.findOneById(receiverId);
-
-		if (!receiver) {
-			throw new NotFoundException("receiver.notFound");
-		}
+		const receiver = await this.userService.getUserById(receiverId);
 
 		const messages = await this.messageService.getMessages({
-			receiverId: receiverId,
-			connectedUserId: user.id,
+			receiver,
+			sender: connectedUser,
 		});
 
 		const formattedMessages = await Promise.all(
@@ -44,14 +40,10 @@ export class ChatController {
 				) => {
 					const [sender, receiver] = await Promise.all(
 						[
-							this.userRepository.findOneById(messageSenderId),
-							this.userRepository.findOneById(messageReceiverId),
+							this.userService.getUserById(messageSenderId),
+							this.userService.getUserById(messageReceiverId),
 						],
 					);
-
-					if (!sender || !receiver) {
-						throw new NotFoundException("user.notFound");
-					}
 
 					return {
 						_id,

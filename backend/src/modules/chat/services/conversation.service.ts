@@ -1,18 +1,11 @@
 import { MongoRepository } from "@/providers/mongo/mongo.module";
-import { UserRepository } from "@/modules/user/repositories/user";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
+import { Message } from "@/providers/mongo/entities/message";
 
-interface LastMessage {
-	id: string;
-	senderId: string;
-	receiverId: string;
-	content: string;
-	sendAt: Date;
-	readAt: Date | null;
-}
+type LastMessage = Message & { id: string };
 
-interface UserConversation {
+interface Conversation {
 	_id: string;
 	conversationName: string;
 	conversationReceiverId: string;
@@ -25,11 +18,10 @@ export class ConversationService {
 	public constructor(
 		@Inject("MONGO_REPOSITORY")
 		private readonly mongodb: MongoRepository,
-		private readonly userRepository: UserRepository,
 	) {}
 
-	public async getUserConversations(connectedUser: User) {
-		const userConversations = await this.mongodb.messageCollection.aggregate<UserConversation>(
+	public getConversations(connectedUser: User) {
+		return this.mongodb.messageCollection.aggregate<Conversation>(
 			[
 				{
 					$match: {
@@ -77,31 +69,5 @@ export class ConversationService {
 				},
 			],
 		).toArray();
-
-		const formattedUserConversations = await Promise.all(
-			userConversations.map(
-				async(conversation) => {
-					const sender = await this.userRepository.findOneById(conversation.lastMessage.senderId);
-					const receiver = await this.userRepository.findOneById(conversation.lastMessage.receiverId);
-
-					if (!sender || !receiver) {
-						throw new NotFoundException("Receiver or Sender not found in conversation");
-					}
-
-					return {
-						...conversation,
-						conversationName: sender.id === connectedUser.id ? receiver.username : sender.username,
-						conversationReceiverId: sender.id === connectedUser.id ? receiver.id : sender.id,
-						lastMessage: {
-							...conversation.lastMessage,
-							senderUsername: sender.id === connectedUser.id ? "(Vous)" : sender.username,
-							isReaded: !!conversation.lastMessage.readAt,
-						},
-					};
-				},
-			),
-		);
-
-		return formattedUserConversations;
 	}
 }
