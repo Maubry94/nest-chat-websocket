@@ -38,3 +38,12 @@ npm run docker:prisma:studio
 - L’API NestJS sur <http://localhost:1506> (selon config)
 - Prisma studio sera accessible sur <http://localhost:5555> (si lancé)
 - Les WebSockets fonctionnent via le backend sur le même port
+
+## Liste des fonctionnalités
+
+- Inscription / Connexion via authentification Google Firebase
+- Connexion à un chat en temps réel (WebSocket) avec les autres utilisateurs connectés
+- Couleur de profil personnalisable et visible par les autres utilisateurs
+- Visualisation de la liste des conversations de l'utilisateur
+- Indication de l’état de lecture des messages (lu/non lu)
+- Indication de l’utilisateur en train d’écrire
