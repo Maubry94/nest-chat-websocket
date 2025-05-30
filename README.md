@@ -13,11 +13,28 @@
 
 ```bash
 # 1. Lancer tous les services
-docker-compose up --build
+npm run dev
 ```
 
+```bash
+# 2. Appliquer les migrations
+npm run docker:prisma:migrate
+```
+
+```bash
+# 3. Générer les types
+npm run docker:prisma:generate
+```
+
+#### Facultatif
+
+```bash
+# 1. Lancer prisma studio
+npm run docker:prisma:studio
+```
 ### Accès
 
 - Le frontend sera accessible sur <http://localhost:3000>
 - L’API NestJS sur <http://localhost:1506> (selon config)
+- Prisma studio sera accessible sur <http://localhost:5555> (si lancé)
 - Les WebSockets fonctionnent via le backend sur le même port

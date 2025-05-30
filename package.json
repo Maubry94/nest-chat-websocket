@@ -25,6 +25,7 @@
     "license": "UNLICENSED",
     "scripts": {
       "clear": "./scripts/clear.sh",
+      "dev": "docker compose up --build",
       "dev:nestjs": "npm -w @backend/nest-chat-websocket run dev",
       "dev:vue": "npm -w @frontend/nest-chat-websocket run dev",
       "docker:prisma:migrate": "docker compose exec nestjs npm -w @backend/nest-chat-websocket run prisma:migration",
