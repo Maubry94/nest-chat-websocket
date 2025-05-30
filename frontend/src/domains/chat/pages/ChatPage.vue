@@ -140,6 +140,31 @@ function handleIsTyping(value: boolean) {
 	);
 }
 
+async function emitCheckReatAt() {
+	try {
+		const response: { readAtChecked: boolean } = await chatSocket
+			.timeout(chatSocketConfig.timeout)
+			.emitWithAck(
+				"check-readAt",
+				{
+					receiverId: params.value.userId,
+				},
+			);
+
+		if (response.readAtChecked) {
+			const currentUserConversation = user.value?.conversations.find(
+				(conv) => conv.conversationReceiverId === params.value.userId,
+			);
+
+			if (currentUserConversation) {
+				currentUserConversation.lastMessage.isReaded = true;
+			}
+		}
+	} catch {
+		// Error intentionally ignored
+	}
+}
+
 function handleReceiveMessage(message: ReceivedMessage) {
 	if (!conversation.value || !user.value || !receiver.value) {
 		return;
@@ -163,44 +188,23 @@ function handleReceiveMessage(message: ReceivedMessage) {
 	playReceiveSound();
 }
 
-onMounted(() => {
-	chatSocket.on("receive-message", handleReceiveMessage);
-});
+onMounted(
+	() => {
+		chatSocket.on("receive-message", handleReceiveMessage);
+	},
+);
 
 onUnmounted(() => {
 	chatSocket.off("receive-message", handleReceiveMessage);
 });
 
 watch(
-	() => conversation.value?.messages,
+	[conversation.value?.messages, scrollAreaRef.value],
 	(messages) => {
-		if (messages) {
+		if (messages && scrollAreaRef.value) {
 			scrollToBottom(
 				scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]"),
-				async() => {
-					try {
-						const response: { readAtChecked: boolean } = await chatSocket
-							.timeout(chatSocketConfig.timeout)
-							.emitWithAck(
-								"check-readAt",
-								{
-									receiverId: params.value.userId,
-								},
-							);
-
-						if (response.readAtChecked) {
-							const currentUserConversation = user.value?.conversations.find(
-								(conv) => conv.conversationReceiverId === params.value.userId,
-							);
-
-							if (currentUserConversation) {
-								currentUserConversation.lastMessage.isReaded = true;
-							}
-						}
-					} catch {
-						// Error intentionally ignored
-					}
-				},
+				() => emitCheckReatAt(),
 			);
 		}
 	},
