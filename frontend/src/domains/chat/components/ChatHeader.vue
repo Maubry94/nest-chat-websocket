@@ -73,7 +73,7 @@ const chatName = computed(() => props.chatName ?? "");
 						>
 							<RouterLink
 								v-if="searchedUser.id !== user?.id"
-								:to="{ name: CHAT_PAGE, params: { userId: searchedUser.id } }"
+								:to="{ name: CHAT_PAGE, params: { receiverId: searchedUser.id } }"
 							>
 								{{ searchedUser.username }}
 							</RouterLink>

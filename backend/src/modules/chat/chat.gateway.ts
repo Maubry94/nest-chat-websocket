@@ -136,6 +136,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage("send-isTyping")
 	public async handleCheckIsTyping(
 		@MessageBody(new ZodValidationPipe(checkIsTypingSchema)) data: z.infer<typeof checkIsTypingSchema>,
+		@ConnectedSocket() socket: Socket,
 	) {
 		const { receiverId, isTyping } = data;
 
@@ -145,7 +146,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		sockets.forEach(
 			(socketId) => {
-				this.server.to(socketId).emit("is-typing", isTyping);
+				this.server.to(socketId).emit(
+					"is-typing",
+					{
+						sender: socket.user,
+						isTyping,
+					},
+				);
 			},
 		);
 	}

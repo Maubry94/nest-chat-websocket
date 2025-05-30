@@ -14,7 +14,7 @@ export default (): RouteRecordRaw[] => [
 	},
 	{
 		name: routerPageNameChat.CHAT_PAGE,
-		path: "/chat/:userId",
+		path: "/chat/:receiverId",
 		component: () => import("./pages/ChatPage.vue"),
 	},
 ];

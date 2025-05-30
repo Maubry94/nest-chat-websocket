@@ -6,7 +6,11 @@ export const userSchema = z.object({
 	username: z.string(),
 	email: z.string().email(),
 	profileColor: z.string(),
-	conversations: z.array(userConversationSchema),
+});
+
+export const userWithConversationsSchema = userSchema.extend({
+	conversations: userConversationSchema.array(),
 });
 
 export type User = z.infer<typeof userSchema>;
+export type UserWithConversations = z.infer<typeof userWithConversationsSchema>;

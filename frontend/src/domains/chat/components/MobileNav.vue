@@ -83,7 +83,7 @@ function logout() {
 								:to="{
 									name: CHAT_PAGE,
 									params: {
-										userId: userConversation.conversationReceiverId
+										receiverId: userConversation.conversationReceiverId
 									}
 								}"
 								class="block px-3 py-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition"

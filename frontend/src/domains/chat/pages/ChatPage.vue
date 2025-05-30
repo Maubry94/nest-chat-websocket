@@ -16,6 +16,7 @@ import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 import { useChatSounds } from "../composables/useChatSounds";
 import { scrollToBottom } from "@/lib/utils";
+import type { User } from "@/schemas/userSchema";
 
 const router = useRouter();
 const { sonnerError } = useSonner();
@@ -24,6 +25,7 @@ const { playSendSound, playReceiveSound } = useChatSounds();
 const { user, fetchInformation } = useUserInformation();
 const isTyping = ref(false);
 const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
+const isTypingSender = ref<User | null>(null);
 
 interface ReceivedMessage {
 	_id: string;
@@ -38,13 +40,13 @@ interface ReceivedMessage {
 }
 
 const params = useRouteParams({
-	userId: z.string(),
+	receiverId: z.string(),
 });
 
 const {
 	user: receiver,
 } = useGetUserById(
-	computed(() => params.value.userId),
+	computed(() => params.value.receiverId),
 	() => {
 		sonnerError("Utilisateur introuvable.");
 		void router.push({ name: HOME_PAGE });
@@ -54,7 +56,7 @@ const {
 const {
 	conversation,
 } = useGetConversationList(
-	computed(() => params.value.userId),
+	computed(() => params.value.receiverId),
 	() => {
 		sonnerError("Conversation introuvable.");
 		void router.push({ name: HOME_PAGE });
@@ -63,8 +65,12 @@ const {
 
 chatSocket.on(
 	"is-typing",
-	(value: boolean) => {
-		isTyping.value = value;
+	(response: {
+		isTyping: boolean;
+		sender: User;
+	}) => {
+		isTyping.value = response.isTyping;
+		isTypingSender.value = response.sender;
 	},
 );
 
@@ -106,7 +112,7 @@ async function sendMessage(content: string) {
 			.emitWithAck(
 				"send-message",
 				{
-					receiverId: params.value.userId,
+					receiverId: params.value.receiverId,
 					message: content,
 				},
 			);
@@ -134,7 +140,7 @@ function handleIsTyping(value: boolean) {
 	chatSocket.emit(
 		"send-isTyping",
 		{
-			receiverId: params.value.userId,
+			receiverId: params.value.receiverId,
 			isTyping: value,
 		},
 	);
@@ -147,13 +153,13 @@ async function emitCheckReatAt() {
 			.emitWithAck(
 				"check-readAt",
 				{
-					receiverId: params.value.userId,
+					receiverId: params.value.receiverId,
 				},
 			);
 
 		if (response.readAtChecked) {
 			const currentUserConversation = user.value?.conversations.find(
-				(conv) => conv.conversationReceiverId === params.value.userId,
+				(conv) => conv.conversationReceiverId === params.value.receiverId,
 			);
 
 			if (currentUserConversation) {
@@ -170,7 +176,7 @@ function handleReceiveMessage(message: ReceivedMessage) {
 		return;
 	}
 
-	if (message.sender.id === params.value.userId) {
+	if (message.sender.id === params.value.receiverId) {
 		conversation.value.messages.push({
 			_id: message._id,
 			sender: {
@@ -259,8 +265,8 @@ watch(
 
 		<div class="relative shrink-0 pb-4">
 			<IsTyping
-				v-if="receiver && receiver.id !== user?.id && isTyping"
-				:users="[receiver.username]"
+				v-if="isTypingSender && isTyping && isTypingSender.id === params.receiverId"
+				:users="[isTypingSender.username]"
 				class="absolute -top-8 z-10"
 			/>
 
