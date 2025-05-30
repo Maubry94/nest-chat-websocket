@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouteParams } from "@/composables/useRouteParams";
 import { z } from "zod";
-import { computed, onMounted, ref, watch, onUnmounted } from "vue";
+import { computed, onMounted, ref, watch, onUnmounted, nextTick } from "vue";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatHeader from "@/domains/chat/components/ChatHeader.vue";
 import TheMessage from "../components/TheMessage.vue";
@@ -199,14 +199,20 @@ onUnmounted(() => {
 });
 
 watch(
-	[conversation.value?.messages, scrollAreaRef.value],
-	(messages) => {
-		if (messages && scrollAreaRef.value) {
-			scrollToBottom(
-				scrollAreaRef.value?.$el?.querySelector("[data-reka-scroll-area-viewport]"),
-				() => emitCheckReatAt(),
-			);
+	() => ({
+		messages: conversation.value?.messages,
+		element: scrollAreaRef.value,
+	}),
+	async({ messages, element }) => {
+		if (!messages || !element) {
+			return;
 		}
+
+		// Ensure the scroll area is ready before scrolling
+		await nextTick();
+		const viewport = element.$el?.querySelector("[data-reka-scroll-area-viewport]");
+
+		scrollToBottom(viewport, () => emitCheckReatAt());
 	},
 	{
 		immediate: true,

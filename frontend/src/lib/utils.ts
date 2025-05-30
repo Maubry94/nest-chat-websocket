@@ -31,10 +31,8 @@ export function scrollToBottom(
 		return;
 	}
 
-	void nextTick(() => {
-		element.scrollTop = element.scrollHeight;
-		onScrollComplete?.();
-	});
+	element.scrollTop = element.scrollHeight;
+	onScrollComplete?.();
 }
 
 export const LUMINANCE_CONFIG = {
