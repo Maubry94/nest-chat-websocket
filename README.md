@@ -45,5 +45,6 @@ npm run docker:prisma:studio
 - Connexion à un chat en temps réel (WebSocket) avec les autres utilisateurs connectés
 - Couleur de profil personnalisable et visible par les autres utilisateurs
 - Visualisation de la liste des conversations de l'utilisateur
+- indication de l’état de lecture des conversations (pastille rouge)
 - Indication de l’état de lecture des messages (lu/non lu)
 - Indication de l’utilisateur en train d’écrire
