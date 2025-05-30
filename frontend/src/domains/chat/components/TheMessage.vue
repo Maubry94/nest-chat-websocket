@@ -48,7 +48,7 @@ const senderProfileColor = computed(() => props.message.sender.profileColor);
 
 <template>
 	<div
-		class="py-8 flex items-center gap-2"
+		class="py-2 last:pb-8 flex items-center gap-2"
 		:class="isSender ? 'flex-row-reverse justify-end' : 'justify-start'"
 	>
 		<UserAvatar :profile-color="senderProfileColor" />
